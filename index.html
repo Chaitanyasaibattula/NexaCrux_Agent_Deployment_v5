@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PETI — The New Architecture of Delivery</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'space': ['Space Grotesk', 'sans-serif'],
+            'inter': ['Inter', 'sans-serif'],
+            'mono': ['Space Mono', 'monospace'],
+          },
+          colors: {
+            'peti-black': '#0A0A0F',
+            'peti-charcoal': '#12121A',
+            'peti-surface': '#1A1A24',
+            'peti-indigo': '#4F46E5',
+            'peti-electric': '#6366F1',
+            'peti-cyan': '#06B6D4',
+            'peti-glow': '#818CF8',
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'scan': 'scan 3s linear infinite',
+            'fade-in': 'fadeIn 0.4s ease-out forwards',
+            'slide-up': 'slideUp 0.5s ease-out forwards',
+            'scale-in': 'scaleIn 0.3s ease-out forwards',
+            'marquee-rtl': 'marqueeRTL 25s linear infinite',
+            'heartbeat': 'heartbeat 1.5s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-15px)' },
+            },
+            glow: {
+              '0%': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)' },
+              '100%': { boxShadow: '0 0 40px rgba(99, 102, 241, 0.6), 0 0 60px rgba(6, 182, 212, 0.3)' },
+            },
+            scan: {
+              '0%': { transform: 'translateY(-100%)', opacity: '0' },
+              '10%': { opacity: '1' },
+              '90%': { opacity: '1' },
+              '100%': { transform: 'translateY(100%)', opacity: '0' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.95)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            },
+            marqueeRTL: {
+              '0%': { transform: 'translateX(0)' },
+              '100%': { transform: 'translateX(-50%)' },
+            },
+            heartbeat: {
+              '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+              '50%': { opacity: '0.6', transform: 'scale(1.1)' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0A0A0F; color: #FFFFFF; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .glass-nav { background: linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, rgba(10, 10, 15, 0.7) 100%); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(79, 70, 229, 0.15); }
+    .glass-card { background: rgba(26, 26, 36, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.06); }
+    .glass-card-strong { background: rgba(18, 18, 26, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    .hud-modal { background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(79, 70, 229, 0.4); box-shadow: 0 0 60px rgba(79, 70, 229, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+    .hud-input { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
+    .hud-input:focus { outline: none; border-color: rgba(79, 70, 229, 0.6); box-shadow: 0 0 20px rgba(79, 70, 229, 0.2); }
+    .gradient-text { background: linear-gradient(135deg, #6366F1 0%, #06B6D4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .led-strip { background: linear-gradient(90deg, #4F46E5, #06B6D4, #6366F1); box-shadow: 0 0 20px rgba(79, 70, 229, 0.8), 0 0 40px rgba(6, 182, 212, 0.5); }
+    .locker-glow { box-shadow: 0 0 80px rgba(79, 70, 229, 0.3), 0 0 120px rgba(6, 182, 212, 0.15), inset 0 0 60px rgba(99, 102, 241, 0.08); }
+    .grid-bg { background-image: linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px); background-size: 80px 80px; }
+    .terminal-text { font-family: 'Space Mono', monospace; color: #06B6D4; }
+    .view-container { display: none; opacity: 0; transition: opacity 0.4s ease-out; }
+    .view-container.active { display: block; opacity: 1; }
+    .modal-overlay { display: none; opacity: 0; transition: opacity 0.3s ease-out; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: transform 0.3s ease-out; }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+    .btn-primary { background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%); transition: all 0.3s ease; }
+    .btn-primary:hover { box-shadow: 0 0 30px rgba(79, 70, 229, 0.5); transform: translateY(-1px); }
+    .btn-outline { border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
+    .btn-outline:hover { border-color: rgba(79, 70, 229, 0.6); background: rgba(79, 70, 229, 0.1); }
+    .capability-card { transition: all 0.4s ease; }
+    .capability-card:hover { transform: translateY(-8px); border-color: rgba(79, 70, 229, 0.4); box-shadow: 0 20px 60px rgba(79, 70, 229, 0.15); }
+    .scan-line { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #06B6D4, transparent); animation: scan 3s linear infinite; }
+    @keyframes scan { 0% { transform: translateY(-100%); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(500px); opacity: 0; } }
+    .dashboard-container { display: none; }
+    .dashboard-container.active { display: block; }
+    .sidebar-link { transition: all 0.2s ease; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(79, 70, 229, 0.1); border-color: rgba(79, 70, 229, 0.3); color: #6366F1; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Marquee Styles - Full Color RTL */
+    .marquee-container {
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+    .marquee-container::before,
+    .marquee-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 80px;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .marquee-container::before {
+      left: 0;
+      background: linear-gradient(to right, #0A0A0F, transparent);
+    }
+    .marquee-container::after {
+      right: 0;
+      background: linear-gradient(to left, #0A0A0F, transparent);
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marqueeRTL 25s linear infinite;
+    }
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+    .marquee-logo {
+      transition: transform 0.3s ease;
+    }
+    .marquee-logo:hover {
+      transform: scale(1.1);
+    }
+    
+    /* Heartbeat Animation for Terminal Dots */
+    .terminal-dot {
+      animation: heartbeat 1.5s ease-in-out infinite;
+    }
+    .terminal-dot:nth-child(2) {
+      animation-delay: 0.3s;
+    }
+    .terminal-dot:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+    
+    /* Dashboard Styles */
+    .dashboard-nav-item {
+      transition: all 0.3s ease;
+    }
+    .dashboard-nav-item:hover {
+      background: rgba(79, 70, 229, 0.1);
+    }
+    .dashboard-nav-item.active {
+      background: rgba(79, 70, 229, 0.2);
+      border-color: rgba(79, 70, 229, 0.5);
+    }
+    .kpi-card {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(79, 70, 229, 0.4);
+    }
+    .kpi-card.active {
+      border-color: #4F46E5;
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+    }
+    
+    /* Locker Grid Styles */
+    .locker-cell {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .locker-cell:hover {
+      transform: scale(1.05);
+    }
+    .locker-cell.available {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.5);
+    }
+    .locker-cell.occupied {
+      background: rgba(79, 70, 229, 0.2);
+      border-color: rgba(79, 70, 229, 0.6);
+    }
+    .locker-cell.issue {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+    
+    /* Side Panel */
+    .side-panel {
+      transform: translateX(100%);
+      transition: transform 0.3s ease-out;
+    }
+    .side-panel.open {
+      transform: translateX(0);
+    }
+    
+    /* Table Styles */
+    .data-table th {
+      background: rgba(18, 18, 26, 0.8);
+    }
+    .data-table tr:hover td {
+      background: rgba(79, 70, 229, 0.05);
+    }
+    
+    /* Sector Card */
+    .sector-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .sector-card img {
+      transition: transform 0.5s ease;
+    }
+    .sector-card:hover img {
+      transform: scale(1.05);
+    }
+    .sector-overlay {
+      background: linear-gradient(to top, rgba(10, 10, 15, 0.95) 0%, rgba(10, 10, 15, 0.5) 50%, transparent 100%);
+    }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- ==================== LANDING PAGE ==================== -->
+  <div id="landingView" class="view-container active">
+    
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3 cursor-pointer" onclick="showView('landing')">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center">
+              <span class="font-space font-bold text-white text-lg">P</span>
+            </div>
+            <span class="font-space font-semibold text-xl tracking-tight">PETI</span>
+          </div>
+          
+          <div class="hidden md:flex items-center gap-8">
+            <a href="#capabilities" class="text-sm text-gray-400 hover:text-white transition-colors">Capabilities</a>
+            <a href="#core" class="text-sm text-gray-400 hover:text-white transition-colors">PETI Core</a>
+            <a href="#sectors" class="text-sm text-gray-400 hover:text-white transition-colors">Sectors</a>
+            <a href="#sustainability" class="text-sm text-gray-400 hover:text-white transition-colors">Sustainability</a>
+            <button onclick="openModal('inquire')" class="text-sm text-gray-400 hover:text-white transition-colors">Inquire</button>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <button onclick="openModal('login')" class="px-5 py-2.5 rounded-lg btn-outline text-sm font-medium">Login</button>
+            <button onclick="openModal('signup')" class="px-5 py-2.5 rounded-lg btn-primary text-sm font-medium">Sign Up</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center pt-20 overflow-hidden grid-bg">
+      <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-peti-indigo/15 rounded-full blur-[150px]"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-peti-cyan/10 rounded-full blur-[120px]"></div>
+      </div>
+      
+      <div class="relative max-w-7xl mx-auto px-6 py-20">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+          <div class="space-y-8 animate-slide-up">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card">
+              <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+              <span class="text-xs font-mono text-gray-400 uppercase tracking-wider">Now Deployed in 50+ Premium Properties</span>
+            </div>
+            
+            <h1 class="font-space font-bold text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-[-0.02em]">
+              The New<br><span class="gradient-text">Architecture</span><br>of Delivery.
+            </h1>
+            
+            <p class="text-lg text-gray-400 max-w-lg leading-relaxed">
+              Intelligent, secure, and seamlessly integrated into your property's infrastructure.
+            </p>
+            
+            <div class="flex items-center gap-6 pt-4">
+              <div class="flex -space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 border-2 border-peti-black"></div>
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-peti-black"></div>
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-teal-600 border-2 border-peti-black"></div>
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 border-2 border-peti-black"></div>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-300">Trusted by leading developers</p>
+                <p class="text-xs text-gray-500">Oberoi, Lodha, Godrej & more</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative flex justify-center items-center">
+            <div class="absolute inset-0 bg-gradient-to-br from-peti-indigo/20 to-peti-cyan/20 rounded-3xl blur-3xl"></div>
+            <div class="relative locker-3d animate-float">
+              <div class="relative w-72 h-[480px] rounded-2xl locker-glow overflow-hidden" style="background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%); border: 1px solid rgba(79, 70, 229, 0.3);">
+                <div class="absolute top-0 left-0 right-0 h-1 led-strip"></div>
+                <div class="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-peti-indigo/20 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 led-strip"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-peti-indigo/20 to-transparent"></div>
+                
+                <div class="p-5 h-full flex flex-col">
+                  <div class="flex items-center justify-between mb-5">
+                    <span class="font-space font-bold text-xl gradient-text">PETI</span>
+                    <div class="flex items-center gap-2">
+                      <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                      <span class="text-xs font-mono text-gray-500">ONLINE</span>
+                    </div>
+                  </div>
+                  
+                  <div class="grid grid-cols-3 gap-2 flex-1">
+                    <div class="col-span-1 space-y-2">
+                      <div class="h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center"><span class="font-mono text-xs text-gray-600">S-01</span></div>
+                      <div class="h-14 rounded-lg bg-peti-indigo/20 border border-peti-indigo/50 flex items-center justify-center relative overflow-hidden"><span class="font-mono text-xs text-peti-cyan">S-02</span><div class="absolute inset-0 bg-peti-cyan/10 animate-pulse"></div></div>
+                      <div class="h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center"><span class="font-mono text-xs text-gray-600">S-03</span></div>
+                      <div class="h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center"><span class="font-mono text-xs text-gray-600">S-04</span></div>
+                    </div>
+                    <div class="col-span-1 space-y-2">
+                      <div class="h-20 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center"><span class="font-mono text-xs text-gray-600">M-01</span></div>
+                      <div class="h-20 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center"><span class="font-mono text-xs text-gray-600">M-02</span></div>
+                      <div class="h-20 rounded-lg bg-peti-cyan/20 border border-peti-cyan/50 flex items-center justify-center relative overflow-hidden"><span class="font-mono text-xs text-peti-cyan">M-03</span><div class="absolute inset-0 bg-peti-cyan/10 animate-pulse"></div></div>
+                    </div>
+                    <div class="col-span-1 space-y-2">
+                      <div class="h-28 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center"><span class="font-mono text-xs text-gray-600">L-01</span></div>
+                      <div class="h-28 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center"><span class="font-mono text-xs text-gray-600">L-02</span></div>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-4 h-16 rounded-xl bg-gradient-to-br from-gray-900 to-black border border-white/20 flex items-center justify-center relative overflow-hidden">
+                    <div class="scan-line"></div>
+                    <span class="font-mono text-sm text-gray-500">Touch to retrieve</span>
+                  </div>
+                </div>
+              </div>
+              <div class="absolute -top-3 -right-3 w-3 h-3 rounded-full bg-peti-cyan animate-pulse"></div>
+              <div class="absolute top-1/3 -left-5 w-2 h-2 rounded-full bg-peti-indigo animate-pulse-slow"></div>
+              <div class="absolute bottom-1/4 -right-6 w-3 h-3 rounded-full bg-peti-glow animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Carrier Trust Marquee - Full Color RTL -->
+    <section class="relative py-6 border-y border-white/5">
+      <div class="marquee-container">
+        <div class="marquee-track">
+          <!-- First set of logos -->
+          <div class="flex items-center gap-20 px-10">
+            <img src="https://cdn.freebiesupply.com/images/large/2x/amazon-logo-transparent.png" alt="Amazon" class="marquee-logo h-10 w-auto object-contain">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Blue_Dart_logo_transparent.png" alt="Blue Dart" class="marquee-logo h-10 w-auto object-contain">
+            <img src="https://companieslogo.com/img/orig/DELHIVERY.NS.D-b508130d.png" alt="Delhivery" class="marquee-logo h-10 w-auto object-contain">
+            <img src="https://cdn.freebiesupply.com/logos/large/2x/flipkart-logo-png-transparent.png" alt="Flipkart" class="marquee-logo h-10 w-auto object-contain">
+            <img src="https://cdn.freebiesupply.com/logos/large/2x/dhl-1-logo-png-transparent.png" alt="DHL" class="marquee-logo h-10 w-auto object-contain">
+          </div>
+          <!-- Duplicate set for seamless loop -->
+          <div class="flex items-center gap-20 px-10">
+            <img src="https://cdn.freebiesupply.com/images/large/2x/amazon-logo-transparent.png" alt="Amazon" class="marquee-logo h-10 w-auto object-contain">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Blue_Dart_logo_transparent.png" alt="Blue Dart" class="marquee-logo h-10 w-auto object-contain">
+            <img src="https://companieslogo.com/img/orig/DELHIVERY.NS.D-b508130d.png" alt="Delhivery" class="marquee-logo h-10 w-auto object-contain">
+            <img src="https://cdn.freebiesupply.com/logos/large/2x/flipkart-logo-png-transparent.png" alt="Flipkart" class="marquee-logo h-10 w-auto object-contain">
+            <img src="https://cdn.freebiesupply.com/logos/large/2x/dhl-1-logo-png-transparent.png" alt="DHL" class="marquee-logo h-10 w-auto object-contain">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Capabilities Section -->
+    <section id="capabilities" class="relative py-24">
+      <div class="absolute inset-0 bg-gradient-to-b from-peti-black via-peti-charcoal to-peti-black"></div>
+      <div class="relative max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <p class="font-mono text-sm text-peti-cyan mb-4 uppercase tracking-widest">Capabilities</p>
+          <h2 class="font-space font-bold text-4xl md:text-5xl tracking-[-0.02em]">Built for <span class="gradient-text">Modern Living</span></h2>
+        </div>
+        
+        <!-- PETI Hardware Image - 100 Unit -->
+        <div class="mb-16 relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-peti-indigo/10 to-peti-cyan/10 rounded-3xl blur-3xl"></div>
+          <div class="relative rounded-2xl overflow-hidden border border-white/10">
+            <img src="peti-hardware-100.jpg" alt="PETI Intelligent Locker System - 100 Units" class="w-full h-auto object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-peti-black/60 via-transparent to-transparent"></div>
+            <div class="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
+                <span class="font-mono text-sm text-gray-300">PETI Pro Series — 100-Unit Configuration</span>
+              </div>
+              <div class="flex gap-4 text-xs font-mono text-gray-400">
+                <span>50× Small</span>
+                <span>34× Medium</span>
+                <span>16× Large</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="capability-card glass-card rounded-2xl p-8">
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-peti-indigo/20 to-peti-cyan/20 flex items-center justify-center mb-6"><i data-lucide="shield-check" class="w-7 h-7 text-peti-indigo"></i></div>
+            <h3 class="font-space font-semibold text-xl mb-3">Secure Custody</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Automated, 24/7 reception for every parcel. Eliminates lobby clutter and ensures zero missed deliveries.</p>
+          </div>
+          <div class="capability-card glass-card rounded-2xl p-8">
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-peti-cyan/20 to-green-500/20 flex items-center justify-center mb-6"><i data-lucide="key" class="w-7 h-7 text-peti-cyan"></i></div>
+            <h3 class="font-space font-semibold text-xl mb-3">Instant Keys</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Residents receive a unique digital key (OTP) via SMS or Email the moment their package is secured.</p>
+          </div>
+          <div class="capability-card glass-card rounded-2xl p-8">
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-peti-indigo/20 flex items-center justify-center mb-6"><i data-lucide="palette" class="w-7 h-7 text-purple-400"></i></div>
+            <h3 class="font-space font-semibold text-xl mb-3">Bespoke Integration</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Customizable finishes and modular configurations designed to blend seamlessly with your property's architectural aesthetic.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PETI Core Section -->
+    <section id="core" class="relative py-24 overflow-hidden">
+      <div class="absolute inset-0"><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-peti-indigo/10 rounded-full blur-[150px]"></div></div>
+      <div class="relative max-w-7xl mx-auto px-6">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <p class="font-mono text-sm text-peti-cyan mb-4 uppercase tracking-widest">PETI Core</p>
+            <h2 class="font-space font-bold text-4xl md:text-5xl tracking-[-0.02em] mb-6">System <span class="gradient-text">Intelligence</span></h2>
+            <p class="text-gray-400 leading-relaxed mb-8">Every PETI unit is powered by our proprietary Core OS—constantly monitoring, learning, and optimizing delivery flow for your property.</p>
+            <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-peti-indigo/20 flex items-center justify-center"><i data-lucide="activity" class="w-5 h-5 text-peti-indigo"></i></div>
+                <div><p class="font-medium">Real-time Monitoring</p><p class="text-sm text-gray-500">Live status of every compartment</p></div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-peti-cyan/20 flex items-center justify-center"><i data-lucide="zap" class="w-5 h-5 text-peti-cyan"></i></div>
+                <div><p class="font-medium">Predictive Analytics</p><p class="text-sm text-gray-500">Anticipate peak delivery times</p></div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center"><i data-lucide="smartphone" class="w-5 h-5 text-green-400"></i></div>
+                <div><p class="font-medium">Mobile Integration</p><p class="text-sm text-gray-500">Native apps for iOS and Android</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card-strong rounded-2xl overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-3 bg-peti-surface border-b border-white/5">
+              <div class="w-3 h-3 rounded-full bg-red-500 terminal-dot"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500 terminal-dot"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500 terminal-dot"></div>
+              <span class="ml-4 text-xs font-mono text-gray-500">peti-core — system heartbeat</span>
+            </div>
+            <div class="p-4 h-80 overflow-hidden font-mono text-xs space-y-1" id="terminalFeed"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sectors Section -->
+    <section id="sectors" class="relative py-24">
+      <div class="absolute inset-0 bg-gradient-to-b from-peti-charcoal via-peti-black to-peti-charcoal"></div>
+      <div class="relative max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <p class="font-mono text-sm text-peti-cyan mb-4 uppercase tracking-widest">Sectors</p>
+          <h2 class="font-space font-bold text-4xl md:text-5xl tracking-[-0.02em]">Built for Every <span class="gradient-text">Environment</span></h2>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Luxury Residential -->
+          <div class="sector-card glass-card rounded-2xl overflow-hidden group cursor-pointer">
+            <div class="relative h-64">
+              <img src="sector-residential.jpg" alt="Luxury Residential" class="w-full h-full object-cover">
+              <div class="sector-overlay absolute inset-0"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center">
+                    <i data-lucide="building-2" class="w-5 h-5 text-amber-400"></i>
+                  </div>
+                  <h3 class="font-space font-semibold text-xl">Luxury Residential</h3>
+                </div>
+                <p class="text-gray-400 text-sm">Premium apartments & gated communities with marble lobbies and gold accents</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Commercial Hubs -->
+          <div class="sector-card glass-card rounded-2xl overflow-hidden group cursor-pointer">
+            <div class="relative h-64">
+              <img src="sector-commercial.jpg" alt="Commercial Hubs" class="w-full h-full object-cover">
+              <div class="sector-overlay absolute inset-0"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-peti-cyan/20 to-blue-500/20 flex items-center justify-center">
+                    <i data-lucide="briefcase" class="w-5 h-5 text-peti-cyan"></i>
+                  </div>
+                  <h3 class="font-space font-semibold text-xl">Commercial Hubs</h3>
+                </div>
+                <p class="text-gray-400 text-sm">Office buildings & business parks with glass atriums and steel finishes</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Education -->
+          <div class="sector-card glass-card rounded-2xl overflow-hidden group cursor-pointer">
+            <div class="relative h-64">
+              <img src="sector-education.jpg" alt="Education" class="w-full h-full object-cover">
+              <div class="sector-overlay absolute inset-0"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-peti-indigo/20 flex items-center justify-center">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 text-purple-400"></i>
+                  </div>
+                  <h3 class="font-space font-semibold text-xl">Education</h3>
+                </div>
+                <p class="text-gray-400 text-sm">Universities & student housing with minimalist white/indigo design</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Healthcare -->
+          <div class="sector-card glass-card rounded-2xl overflow-hidden group cursor-pointer">
+            <div class="relative h-64">
+              <img src="sector-healthcare.jpg" alt="Healthcare" class="w-full h-full object-cover">
+              <div class="sector-overlay absolute inset-0"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/20 to-teal-500/20 flex items-center justify-center">
+                    <i data-lucide="heart-pulse" class="w-5 h-5 text-green-400"></i>
+                  </div>
+                  <h3 class="font-space font-semibold text-xl">Healthcare</h3>
+                </div>
+                <p class="text-gray-400 text-sm">Hospitals & medical centers with sterile, clean environments</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sustainability Section -->
+    <section id="sustainability" class="relative py-24">
+      <div class="absolute inset-0 bg-gradient-to-b from-peti-charcoal via-peti-black to-peti-charcoal"></div>
+      <div class="relative max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <p class="font-mono text-sm text-green-400 mb-4 uppercase tracking-widest">Sustainability</p>
+          <h2 class="font-space font-bold text-4xl md:text-5xl tracking-[-0.02em]">The Last-Mile <span class="gradient-text">Impact</span></h2>
+        </div>
+        
+        <!-- Traffic Reduction Infographic -->
+        <div class="mb-12">
+          <div class="relative rounded-2xl overflow-hidden border border-white/10">
+            <img src="sustainability-traffic.jpg" alt="60% Reduction in Courier Traffic" class="w-full h-auto object-cover">
+          </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="grid md:grid-cols-4 gap-6">
+          <div class="glass-card rounded-2xl p-6 text-center"><p class="font-space font-bold text-4xl gradient-text mb-2">60%</p><p class="text-sm text-gray-400">Reduction in courier traffic</p></div>
+          <div class="glass-card rounded-2xl p-6 text-center"><p class="font-space font-bold text-4xl text-green-400 mb-2">40%</p><p class="text-sm text-gray-400">Lower carbon footprint</p></div>
+          <div class="glass-card rounded-2xl p-6 text-center"><p class="font-space font-bold text-4xl text-peti-cyan mb-2">100%</p><p class="text-sm text-gray-400">Recyclable materials</p></div>
+          <div class="glass-card rounded-2xl p-6 text-center"><p class="font-space font-bold text-4xl text-purple-400 mb-2">Zero</p><p class="text-sm text-gray-400">Failed delivery attempts</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative py-16 border-t border-white/5">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-4 gap-12 mb-12">
+          <div class="md:col-span-2">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center"><span class="font-space font-bold text-white text-lg">P</span></div>
+              <span class="font-space font-semibold text-xl">PETI</span>
+            </div>
+            <p class="text-gray-500 text-sm max-w-sm mb-6">The new architecture of delivery. Intelligent, secure, and seamlessly integrated into your property's infrastructure.</p>
+            <div class="flex items-center gap-4">
+              <a href="#" class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="twitter" class="w-4 h-4 text-gray-400"></i></a>
+              <a href="#" class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="instagram" class="w-4 h-4 text-gray-400"></i></a>
+              <a href="#" class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="linkedin" class="w-4 h-4 text-gray-400"></i></a>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium mb-4">Product</p>
+            <ul class="space-y-2">
+              <li><a href="#capabilities" class="text-sm text-gray-500 hover:text-white transition-colors">Capabilities</a></li>
+              <li><a href="#core" class="text-sm text-gray-500 hover:text-white transition-colors">PETI Core</a></li>
+              <li><a href="#sectors" class="text-sm text-gray-500 hover:text-white transition-colors">Sectors</a></li>
+              <li><a href="#sustainability" class="text-sm text-gray-500 hover:text-white transition-colors">Sustainability</a></li>
+              <li><button onclick="openModal('inquire')" class="text-sm text-gray-500 hover:text-white transition-colors">Inquire</button></li>
+            </ul>
+          </div>
+          <div>
+            <p class="font-medium mb-4">Company</p>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">About</a></li>
+              <li><a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">Careers</a></li>
+              <li><a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">Press</a></li>
+              <li><a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p class="text-sm text-gray-600">© 2026 PETI Systems. All rights reserved.</p>
+          <div class="flex items-center gap-6">
+            <a href="#" class="text-sm text-gray-600 hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" class="text-sm text-gray-600 hover:text-white transition-colors">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+  
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4" style="background: rgba(0, 0, 0, 0.85);">
+    <div class="modal-content hud-modal rounded-2xl p-8 w-full max-w-md relative">
+      <button onclick="closeModal('login')" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="x" class="w-4 h-4 text-gray-400"></i></button>
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center mx-auto mb-4"><i data-lucide="log-in" class="w-8 h-8 text-white"></i></div>
+        <h2 class="font-space font-bold text-2xl mb-2">Welcome Back</h2>
+        <p class="text-sm text-gray-500">Sign in to access your PETI account</p>
+      </div>
+      <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div><label class="block text-sm text-gray-400 mb-2">Email Address</label><input type="email" id="loginEmail" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="you@example.com" required></div>
+        <div><label class="block text-sm text-gray-400 mb-2">Password</label><input type="password" id="loginPassword" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="••••••••" required></div>
+        <button type="submit" class="w-full py-3 rounded-xl btn-primary font-space font-semibold">Sign In</button>
+      </form>
+      <div class="mt-6 pt-6 border-t border-white/10 space-y-3 text-center">
+        <p class="text-sm text-gray-500">Property Manager? <button onclick="switchModal('login', 'manager')" class="text-peti-indigo hover:text-peti-cyan transition-colors font-medium">Manager Portal</button></p>
+        <p class="text-sm text-gray-500">Don't have an account? <button onclick="switchModal('login', 'signup')" class="text-peti-indigo hover:text-peti-cyan transition-colors font-medium">Sign Up</button></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign Up Modal -->
+  <div id="signupModal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4" style="background: rgba(0, 0, 0, 0.85);">
+    <div class="modal-content hud-modal rounded-2xl p-8 w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal('signup')" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="x" class="w-4 h-4 text-gray-400"></i></button>
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center mx-auto mb-4"><i data-lucide="user-plus" class="w-8 h-8 text-white"></i></div>
+        <h2 class="font-space font-bold text-2xl mb-2">Create Account</h2>
+        <p class="text-sm text-gray-500">Join the future of property delivery</p>
+      </div>
+      <form onsubmit="handleSignup(event)" class="space-y-4">
+        <div><label class="block text-sm text-gray-400 mb-2">Property Name</label><input type="text" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="e.g., Oberoi Skyline" required></div>
+        <div><label class="block text-sm text-gray-400 mb-2">Unit Number</label><input type="text" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="e.g., 1204" required></div>
+        <div><label class="block text-sm text-gray-400 mb-2">Full Name</label><input type="text" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="Your full name" required></div>
+        <div><label class="block text-sm text-gray-400 mb-2">Email Address</label><input type="email" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="you@example.com" required></div>
+        <div><label class="block text-sm text-gray-400 mb-2">Password</label><input type="password" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="••••••••" required></div>
+        <button type="submit" class="w-full py-3 rounded-xl btn-primary font-space font-semibold">Create Account</button>
+      </form>
+      <div class="mt-6 pt-6 border-t border-white/10 text-center">
+        <p class="text-sm text-gray-500">Already have an account? <button onclick="switchModal('signup', 'login')" class="text-peti-indigo hover:text-peti-cyan transition-colors font-medium">Login</button></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manager Portal Modal -->
+  <div id="managerModal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4" style="background: rgba(0, 0, 0, 0.9);">
+    <div class="modal-content hud-modal rounded-2xl p-8 w-full max-w-md relative border-peti-indigo/60" style="box-shadow: 0 0 80px rgba(79, 70, 229, 0.3);">
+      <div class="absolute inset-0 rounded-2xl opacity-20" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.3), rgba(6, 182, 212, 0.2));"></div>
+      <button onclick="closeModal('manager')" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors z-10"><i data-lucide="x" class="w-4 h-4 text-gray-400"></i></button>
+      <div class="relative text-center mb-8">
+        <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center mx-auto mb-4 animate-pulse"><i data-lucide="shield" class="w-10 h-10 text-white"></i></div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30 mb-3">
+          <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+          <span class="text-xs font-mono text-red-400 uppercase">Secure Access Required</span>
+        </div>
+        <h2 class="font-space font-bold text-2xl mb-2">Manager Portal</h2>
+        <p class="text-sm text-gray-500">Authorized personnel only</p>
+      </div>
+      <form onsubmit="handleManagerLogin(event)" class="relative space-y-4">
+        <div><label class="block text-sm text-gray-400 mb-2">Property Email</label><input type="email" id="managerEmail" value="property@gmail.com" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" required></div>
+        <div><label class="block text-sm text-gray-400 mb-2">Access Code</label><input type="password" id="managerPassword" value="1234" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" required></div>
+        <button type="submit" id="managerBtn" class="w-full py-4 rounded-xl btn-primary font-space font-semibold flex items-center justify-center gap-3"><span>Initialize PETI Command Center</span><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+      </form>
+      <div class="relative mt-6 pt-6 border-t border-white/10 text-center">
+        <p class="text-sm text-gray-500">Demo credentials: <span class="font-mono text-peti-cyan">property@gmail.com</span> / <span class="font-mono text-peti-cyan">1234</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inquire Modal -->
+  <div id="inquireModal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4" style="background: rgba(0, 0, 0, 0.85);">
+    <div class="modal-content hud-modal rounded-2xl p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal('inquire')" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="x" class="w-4 h-4 text-gray-400"></i></button>
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center mx-auto mb-4"><i data-lucide="message-square" class="w-8 h-8 text-white"></i></div>
+        <h2 class="font-space font-bold text-2xl mb-2">Inquire About PETI</h2>
+        <p class="text-sm text-gray-500">Tell us about your property and we'll get back to you</p>
+      </div>
+      <form onsubmit="handleInquire(event)" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm text-gray-400 mb-2">Name</label><input type="text" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="Your name" required></div>
+          <div><label class="block text-sm text-gray-400 mb-2">Phone</label><input type="tel" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="+91..." required></div>
+        </div>
+        <div><label class="block text-sm text-gray-400 mb-2">Email Address</label><input type="email" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="you@example.com" required></div>
+        <div><label class="block text-sm text-gray-400 mb-2">Property Name</label><input type="text" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="e.g., Oberoi Skyline" required></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm text-gray-400 mb-2">City</label><input type="text" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="Mumbai" required></div>
+          <div><label class="block text-sm text-gray-400 mb-2">State</label><input type="text" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="Maharashtra" required></div>
+        </div>
+        <div><label class="block text-sm text-gray-400 mb-2">Number of Lockers Needed</label><input type="number" class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm" placeholder="e.g., 50" required></div>
+        <div><label class="block text-sm text-gray-400 mb-2">Additional Comments</label><textarea class="w-full px-4 py-3 rounded-xl hud-input text-white font-mono text-sm h-24 resize-none" placeholder="Tell us more about your requirements..."></textarea></div>
+        <button type="submit" class="w-full py-3 rounded-xl btn-primary font-space font-semibold">Submit Inquiry</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 z-[200] hidden items-center justify-center" style="background: #0A0A0F;">
+    <div class="text-center space-y-8">
+      <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center mx-auto animate-pulse">
+        <span class="font-space font-bold text-white text-4xl">P</span>
+      </div>
+      <div class="space-y-2">
+        <p class="font-mono text-peti-cyan animate-pulse text-lg">INITIALIZING PETI COMMAND CENTER</p>
+        <p class="font-mono text-xs text-gray-500" id="loadingText">Establishing secure connection...</p>
+      </div>
+      <div class="w-80 h-1 bg-white/10 rounded-full overflow-hidden mx-auto">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-peti-indigo to-peti-cyan rounded-full transition-all duration-200" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DASHBOARD ==================== -->
+  <div id="dashboardView" class="dashboard-container">
+    <!-- Dashboard Top Navigation -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-peti-charcoal/95 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-6 z-50">
+      <div class="flex items-center gap-8">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center">
+            <span class="font-space font-bold text-white">P</span>
+          </div>
+          <div>
+            <h1 class="font-space font-bold text-white text-sm">PETI</h1>
+            <p class="text-xs text-gray-500">Command Center</p>
+          </div>
+        </div>
+        <nav class="hidden md:flex items-center gap-1">
+          <button onclick="showDashboardView('overview')" id="dash-nav-overview" class="dashboard-nav-item active px-4 py-2 rounded-lg text-sm text-white border border-peti-indigo/50 bg-peti-indigo/20">Overview</button>
+          <button onclick="showDashboardView('lockers')" id="dash-nav-lockers" class="dashboard-nav-item px-4 py-2 rounded-lg text-sm text-gray-400 border border-transparent">Live Locker Map</button>
+          <button onclick="showDashboardView('deliveries')" id="dash-nav-deliveries" class="dashboard-nav-item px-4 py-2 rounded-lg text-sm text-gray-400 border border-transparent">Deliveries</button>
+          <button onclick="showDashboardView('residents')" id="dash-nav-residents" class="dashboard-nav-item px-4 py-2 rounded-lg text-sm text-gray-400 border border-transparent">Residents</button>
+          <button onclick="showDashboardView('carriers')" id="dash-nav-carriers" class="dashboard-nav-item px-4 py-2 rounded-lg text-sm text-gray-400 border border-transparent">Carriers</button>
+        </nav>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-peti-surface border border-white/5">
+          <i data-lucide="building-2" class="w-4 h-4 text-peti-indigo"></i>
+          <span class="text-sm text-white">Oberoi Skyline</span>
+        </div>
+        <button class="relative w-9 h-9 rounded-lg bg-peti-surface border border-white/5 flex items-center justify-center hover:bg-white/5 transition-colors">
+          <i data-lucide="bell" class="w-4 h-4 text-gray-400"></i>
+          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-medium">3</span>
+        </button>
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-peti-indigo to-peti-cyan flex items-center justify-center cursor-pointer" onclick="logout()">
+          <span class="text-white font-semibold text-sm">PM</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Main Content -->
+    <main class="pt-16 min-h-screen">
+      <!-- KPI Cards Row -->
+      <div class="px-6 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div onclick="showDashboardView('deliveries')" id="kpi-deliveries" class="kpi-card glass-card rounded-xl p-4 border-l-4 border-l-peti-indigo">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-gray-400 text-xs mb-1">Today's Deliveries</p>
+                <h3 class="text-2xl font-bold text-white font-mono" id="kpi-deliveries-count">47</h3>
+                <div class="flex items-center gap-1 mt-1 text-green-400 text-xs"><i data-lucide="trending-up" class="w-3 h-3"></i><span>+12%</span></div>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-peti-indigo/20 flex items-center justify-center"><i data-lucide="package" class="w-5 h-5 text-peti-indigo"></i></div>
+            </div>
+          </div>
+          <div onclick="showDashboardView('lockers')" id="kpi-occupancy" class="kpi-card glass-card rounded-xl p-4 border-l-4 border-l-green-500">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-gray-400 text-xs mb-1">Locker Occupancy</p>
+                <h3 class="text-2xl font-bold text-white font-mono" id="kpi-occupancy-count">73%</h3>
+                <div class="flex items-center gap-1 mt-1 text-green-400 text-xs"><i data-lucide="trending-up" class="w-3 h-3"></i><span>+5%</span></div>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center"><i data-lucide="grid-3x3" class="w-5 h-5 text-green-400"></i></div>
+            </div>
+          </div>
+          <div onclick="filterStalePackages()" id="kpi-stale" class="kpi-card glass-card rounded-xl p-4 border-l-4 border-l-red-500">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-gray-400 text-xs mb-1">Stale Packages</p>
+                <h3 class="text-2xl font-bold text-white font-mono" id="kpi-stale-count">5</h3>
+                <div class="flex items-center gap-1 mt-1 text-red-400 text-xs"><i data-lucide="trending-up" class="w-3 h-3"></i><span>+2</span></div>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center"><i data-lucide="alert-triangle" class="w-5 h-5 text-red-400"></i></div>
+            </div>
+          </div>
+          <div onclick="showDashboardView('residents')" id="kpi-residents" class="kpi-card glass-card rounded-xl p-4 border-l-4 border-l-yellow-500">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-gray-400 text-xs mb-1">Active Residents</p>
+                <h3 class="text-2xl font-bold text-white font-mono" id="kpi-residents-count">273</h3>
+                <div class="flex items-center gap-1 mt-1 text-green-400 text-xs"><i data-lucide="trending-up" class="w-3 h-3"></i><span>+3</span></div>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center"><i data-lucide="users" class="w-5 h-5 text-yellow-400"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Views -->
+      <div class="px-6 pb-6">
+        <!-- Overview View -->
+        <div id="dashboard-view-overview" class="dashboard-view">
+          <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Stale Packages Alert -->
+            <div class="lg:col-span-2 glass-card border-l-4 border-l-red-500 rounded-xl overflow-hidden">
+              <div class="p-4 border-b border-white/5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-400"></i></div>
+                    <div>
+                      <h3 class="text-white font-semibold text-sm">Stale Packages</h3>
+                      <p class="text-gray-400 text-xs">5 packages over 7 days</p>
+                    </div>
+                  </div>
+                  <button onclick="notifyAllStale()" class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 text-xs font-medium hover:bg-red-500/30 transition-colors flex items-center gap-1.5">
+                    <i data-lucide="bell" class="w-3 h-3"></i>Notify All
+                  </button>
+                </div>
+              </div>
+              <div class="max-h-[280px] overflow-y-auto" id="stale-packages-list">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="space-y-4">
+              <div class="glass-card rounded-xl p-4">
+                <h3 class="text-white font-semibold text-sm mb-3">Quick Actions</h3>
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="showDashboardView('lockers')" class="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-peti-indigo/20 text-peti-indigo hover:bg-peti-indigo/30 transition-all hover:scale-105">
+                    <i data-lucide="door-open" class="w-5 h-5"></i><span class="text-xs font-medium">Open Locker</span>
+                  </button>
+                  <button onclick="showDashboardView('deliveries')" class="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-all hover:scale-105">
+                    <i data-lucide="package" class="w-5 h-5"></i><span class="text-xs font-medium">Add Delivery</span>
+                  </button>
+                  <button onclick="showDashboardView('residents')" class="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-all hover:scale-105">
+                    <i data-lucide="users" class="w-5 h-5"></i><span class="text-xs font-medium">Manage Access</span>
+                  </button>
+                  <button onclick="showSyncModal()" class="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-peti-cyan/20 text-peti-cyan hover:bg-peti-cyan/30 transition-all hover:scale-105">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i><span class="text-xs font-medium">Sync Property</span>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- System Health -->
+              <div class="glass-card rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-white font-semibold text-sm flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-peti-indigo"></i>System Health</h3>
+                  <span class="text-[10px] text-gray-500 bg-peti-surface px-2 py-0.5 rounded">Live</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="relative w-16 h-16">
+                    <svg class="w-full h-full -rotate-90"><circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.1)" stroke-width="6" fill="none"/><circle cx="32" cy="32" r="28" stroke="#10B981" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="175.9" stroke-dashoffset="10"/></svg>
+                    <div class="absolute inset-0 flex items-center justify-center"><span class="text-lg font-bold text-white font-mono">94%</span></div>
+                  </div>
+                  <div class="flex-1 space-y-1.5 text-xs">
+                    <div class="flex items-center justify-between"><span class="text-gray-400">Lockers Online</span><span class="text-green-400 font-mono">62/64</span></div>
+                    <div class="flex items-center justify-between"><span class="text-gray-400">Cameras</span><span class="text-green-400 font-mono">4/4</span></div>
+                    <div class="flex items-center justify-between"><span class="text-gray-400">Network</span><span class="text-green-400 font-mono">Excellent</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Locker Map View -->
+        <div id="dashboard-view-lockers" class="dashboard-view hidden">
+          <div class="flex gap-6">
+            <!-- Locker Grid -->
+            <div class="flex-1 glass-card rounded-xl p-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-white font-semibold">Locker Bank View</h3>
+                <div class="flex items-center gap-4 text-xs">
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500"></span>Available</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-peti-indigo"></span>Occupied</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-500"></span>Issue</span>
+                </div>
+              </div>
+              
+              <!-- Large Lockers -->
+              <div class="mb-4">
+                <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Large Lockers (L-85 to L-100)</p>
+                <div class="grid grid-cols-8 gap-2" id="large-lockers"></div>
+              </div>
+              
+              <!-- Medium Lockers -->
+              <div class="mb-4">
+                <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Medium Lockers (M-51 to M-84)</p>
+                <div class="grid grid-cols-12 gap-1.5" id="medium-lockers"></div>
+              </div>
+              
+              <!-- Small Lockers -->
+              <div>
+                <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Small Lockers (S-01 to S-50)</p>
+                <div class="grid grid-cols-10 gap-1.5" id="small-lockers"></div>
+              </div>
+            </div>
+            
+            <!-- Side Detail Panel -->
+            <div id="locker-side-panel" class="w-80 glass-card rounded-xl p-4 side-panel">
+              <div id="locker-panel-empty" class="h-full flex flex-col items-center justify-center text-center py-12">
+                <div class="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center mb-4">
+                  <i data-lucide="box" class="w-8 h-8 text-gray-600"></i>
+                </div>
+                <h4 class="text-white font-medium mb-1">Select a Locker</h4>
+                <p class="text-gray-500 text-sm">Click on any locker to view details and take actions</p>
+              </div>
+              <div id="locker-panel-content" class="hidden">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-white font-semibold" id="panel-locker-id">Locker #001</h3>
+                  <span id="panel-status" class="px-2 py-1 rounded text-xs font-medium">Available</span>
+                </div>
+                <div class="space-y-4" id="panel-occupied-content">
+                  <div>
+                    <p class="text-xs text-gray-500 mb-1">Resident</p>
+                    <p class="text-white font-medium" id="panel-resident">-</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 mb-1">Unit Number</p>
+                    <p class="text-white font-mono" id="panel-unit">-</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 mb-1">Carrier</p>
+                    <p class="text-white" id="panel-carrier">-</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 mb-1">Time in Locker</p>
+                    <p class="text-white font-mono" id="panel-time">-</p>
+                  </div>
+                  <button onclick="remoteUnlock()" class="w-full py-3 rounded-lg bg-peti-indigo hover:bg-peti-indigo/80 text-white font-medium flex items-center justify-center gap-2 transition-colors">
+                    <i data-lucide="unlock" class="w-4 h-4"></i>Remote Unlock
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deliveries View -->
+        <div id="dashboard-view-deliveries" class="dashboard-view hidden">
+          <div class="glass-card rounded-xl overflow-hidden">
+            <!-- Search Bar -->
+            <div class="p-4 border-b border-white/5 flex items-center gap-4">
+              <div class="flex-1 relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                <input type="text" id="deliveries-search" placeholder="Search by name, unit #, or tracking..." 
+                  class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-peti-indigo/50 transition-colors"
+                  oninput="filterDeliveries()">
+              </div>
+              <button onclick="showSyncModal()" class="px-4 py-2.5 rounded-lg bg-peti-cyan/20 text-peti-cyan text-sm font-medium hover:bg-peti-cyan/30 transition-colors flex items-center gap-2">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>Sync Property
+              </button>
+            </div>
+            
+            <!-- Deliveries Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full data-table">
+                <thead>
+                  <tr class="text-left text-xs text-gray-500 border-b border-white/5">
+                    <th class="px-4 py-3 font-medium">Timestamp</th>
+                    <th class="px-4 py-3 font-medium">Locker ID</th>
+                    <th class="px-4 py-3 font-medium">Carrier</th>
+                    <th class="px-4 py-3 font-medium">Recipient & Unit</th>
+                    <th class="px-4 py-3 font-medium">Status</th>
+                    <th class="px-4 py-3 font-medium">Confirmation</th>
+                  </tr>
+                </thead>
+                <tbody id="deliveries-table-body" class="text-sm">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Residents View -->
+        <div id="dashboard-view-residents" class="dashboard-view hidden">
+          <div class="glass-card rounded-xl overflow-hidden">
+            <div class="p-4 border-b border-white/5 flex items-center justify-between">
+              <h3 class="text-white font-semibold">Resident Directory</h3>
+              <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                <input type="text" id="residents-search" placeholder="Search residents..." 
+                  class="w-64 pl-10 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-peti-indigo/50 transition-colors"
+                  oninput="filterResidents()">
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full data-table">
+                <thead>
+                  <tr class="text-left text-xs text-gray-500 border-b border-white/5">
+                    <th class="px-4 py-3 font-medium">Name</th>
+                    <th class="px-4 py-3 font-medium">Unit</th>
+                    <th class="px-4 py-3 font-medium">Email</th>
+                    <th class="px-4 py-3 font-medium">Phone</th>
+                    <th class="px-4 py-3 font-medium">Pending Packages</th>
+                    <th class="px-4 py-3 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="residents-table-body" class="text-sm">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carriers View -->
+        <div id="dashboard-view-carriers" class="dashboard-view hidden">
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="glass-card rounded-xl p-4 text-center">
+              <img src="https://cdn.freebiesupply.com/images/large/2x/amazon-logo-transparent.png" alt="Amazon" class="h-8 mx-auto mb-3 object-contain">
+              <p class="text-white font-medium">Amazon Logistics</p>
+              <p class="text-gray-500 text-xs mt-1">142 deliveries today</p>
+              <div class="mt-3 flex items-center justify-center gap-2">
+                <span class="px-2 py-1 rounded bg-green-500/20 text-green-400 text-xs">Active</span>
+              </div>
+            </div>
+            <div class="glass-card rounded-xl p-4 text-center">
+              <img src="https://cdn.freebiesupply.com/logos/large/2x/dhl-1-logo-png-transparent.png" alt="DHL" class="h-8 mx-auto mb-3 object-contain">
+              <p class="text-white font-medium">DHL Express</p>
+              <p class="text-gray-500 text-xs mt-1">38 deliveries today</p>
+              <div class="mt-3 flex items-center justify-center gap-2">
+                <span class="px-2 py-1 rounded bg-green-500/20 text-green-400 text-xs">Active</span>
+              </div>
+            </div>
+            <div class="glass-card rounded-xl p-4 text-center">
+              <img src="https://companieslogo.com/img/orig/DELHIVERY.NS.D-b508130d.png" alt="Delhivery" class="h-8 mx-auto mb-3 object-contain">
+              <p class="text-white font-medium">Delhivery</p>
+              <p class="text-gray-500 text-xs mt-1">67 deliveries today</p>
+              <div class="mt-3 flex items-center justify-center gap-2">
+                <span class="px-2 py-1 rounded bg-green-500/20 text-green-400 text-xs">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Sync Property Modal -->
+  <div id="syncModal" class="modal-overlay fixed inset-0 z-[100] items-center justify-center p-4" style="background: rgba(0, 0, 0, 0.9);">
+    <div class="modal-content hud-modal rounded-2xl p-6 w-full max-w-md relative">
+      <button onclick="closeModal('sync')" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="x" class="w-4 h-4 text-gray-400"></i></button>
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-peti-cyan to-peti-indigo flex items-center justify-center mx-auto mb-3"><i data-lucide="refresh-cw" class="w-7 h-7 text-white"></i></div>
+        <h2 class="font-space font-bold text-xl mb-1">Sync Property</h2>
+        <p class="text-sm text-gray-500">Upload resident data to populate the system</p>
+      </div>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-white/20 rounded-xl p-8 text-center hover:border-peti-indigo/50 transition-colors cursor-pointer" onclick="document.getElementById('csvUpload').click()">
+          <i data-lucide="upload-cloud" class="w-10 h-10 text-gray-500 mx-auto mb-3"></i>
+          <p class="text-white font-medium mb-1">Click to upload CSV/Excel</p>
+          <p class="text-gray-500 text-xs">Or drag and drop files here</p>
+          <input type="file" id="csvUpload" accept=".csv,.xlsx,.xls" class="hidden" onchange="handleCSVUpload(event)">
+        </div>
+        <div class="bg-white/5 rounded-lg p-3">
+          <p class="text-xs text-gray-400 mb-2">Expected format:</p>
+          <code class="text-xs text-peti-cyan font-mono">Name, Unit, Email, Phone</code>
+        </div>
+        <button onclick="generateDemoData()" class="w-full py-3 rounded-xl bg-white/5 text-gray-300 text-sm font-medium hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+          <i data-lucide="database" class="w-4 h-4"></i>Generate Demo Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== DATA STORE ====================
+    let residents = [];
+    let deliveries = [];
+    let lockers = [];
+    let currentView = 'overview';
+    let selectedLocker = null;
+
+    // Initialize demo data
+    function initDemoData() {
+      // Generate 100 lockers
+      lockers = [];
+      for (let i = 1; i <= 100; i++) {
+        let size, label;
+        if (i <= 50) { size = 'small'; label = `S-${String(i).padStart(2, '0')}`; }
+        else if (i <= 84) { size = 'medium'; label = `M-${String(i).padStart(2, '0')}`; }
+        else { size = 'large'; label = `L-${String(i).padStart(2, '0')}`; }
+        
+        const rand = Math.random();
+        let status = 'available';
+        if (rand > 0.7) status = 'occupied';
+        if (rand > 0.95) status = 'issue';
+        
+        lockers.push({ id: i, label, size, status });
+      }
+
+      // Demo residents
+      residents = [
+        { name: 'Sarah Johnson', unit: '410', email: 'sarah.j@email.com', phone: '+91 98765 43210', pending: 2 },
+        { name: 'Michael Chen', unit: '716', email: 'm.chen@email.com', phone: '+91 98765 43211', pending: 1 },
+        { name: 'Emily Davis', unit: '308', email: 'emily.d@email.com', phone: '+91 98765 43212', pending: 0 },
+        { name: 'Raj Patel', unit: '521', email: 'raj.p@email.com', phone: '+91 98765 43213', pending: 3 },
+        { name: 'Priya Sharma', unit: '204', email: 'priya.s@email.com', phone: '+91 98765 43214', pending: 1 },
+        { name: 'James Wilson', unit: '612', email: 'james.w@email.com', phone: '+91 98765 43215', pending: 0 },
+        { name: 'Anita Desai', unit: '405', email: 'anita.d@email.com', phone: '+91 98765 43216', pending: 2 },
+        { name: 'David Kim', unit: '803', email: 'david.k@email.com', phone: '+91 98765 43217', pending: 1 },
+      ];
+
+      // Demo deliveries
+      const carriers = ['Amazon', 'Blue Dart', 'Delhivery', 'Flipkart', 'DHL'];
+      deliveries = [];
+      for (let i = 0; i < 25; i++) {
+        const resident = residents[Math.floor(Math.random() * residents.length)];
+        const locker = lockers.filter(l => l.status === 'occupied')[Math.floor(Math.random() * 20)] || lockers[50];
+        deliveries.push({
+          id: `PKG-${8000 + i}`,
+          timestamp: new Date(Date.now() - Math.random() * 86400000 * 7).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          lockerId: locker.label,
+          carrier: carriers[Math.floor(Math.random() * carriers.length)],
+          recipient: resident.name,
+          unit: resident.unit,
+          status: Math.random() > 0.8 ? 'Stale' : 'Delivered',
+          confirmation: ['mobile', 'camera', 'signature'][Math.floor(Math.random() * 3)],
+          daysInLocker: Math.floor(Math.random() * 10) + 1
+        });
+      }
+    }
+
+    // ==================== LOCKER MAP ====================
+    function renderLockerGrid() {
+      const largeContainer = document.getElementById('large-lockers');
+      const mediumContainer = document.getElementById('medium-lockers');
+      const smallContainer = document.getElementById('small-lockers');
+      
+      if (!largeContainer) return;
+
+      const largeLockers = lockers.filter(l => l.size === 'large');
+      const mediumLockers = lockers.filter(l => l.size === 'medium');
+      const smallLockers = lockers.filter(l => l.size === 'small');
+
+      largeContainer.innerHTML = largeLockers.map(l => createLockerCell(l)).join('');
+      mediumContainer.innerHTML = mediumLockers.map(l => createLockerCell(l)).join('');
+      smallContainer.innerHTML = smallLockers.map(l => createLockerCell(l)).join('');
+    }
+
+    function createLockerCell(locker) {
+      const statusColors = {
+        available: 'border-green-500/50 bg-green-500/10',
+        occupied: 'border-peti-indigo/50 bg-peti-indigo/20',
+        issue: 'border-red-500/50 bg-red-500/10'
+      };
+      return `
+        <div onclick="selectLocker(${locker.id})" class="locker-cell ${locker.status} ${statusColors[locker.status]} border rounded-lg p-2 text-center cursor-pointer hover:scale-105 transition-transform">
+          <p class="text-[10px] text-gray-400">${locker.label}</p>
+        </div>
+      `;
+    }
+
+    function selectLocker(id) {
+      selectedLocker = lockers.find(l => l.id === id);
+      const panel = document.getElementById('locker-side-panel');
+      const emptyContent = document.getElementById('locker-panel-empty');
+      const content = document.getElementById('locker-panel-content');
+      
+      panel.classList.add('open');
+      emptyContent.classList.add('hidden');
+      content.classList.remove('hidden');
+      
+      document.getElementById('panel-locker-id').textContent = `Locker ${selectedLocker.label}`;
+      const statusEl = document.getElementById('panel-status');
+      statusEl.textContent = selectedLocker.status.charAt(0).toUpperCase() + selectedLocker.status.slice(1);
+      statusEl.className = `px-2 py-1 rounded text-xs font-medium ${
+        selectedLocker.status === 'available' ? 'bg-green-500/20 text-green-400' :
+        selectedLocker.status === 'occupied' ? 'bg-peti-indigo/20 text-peti-indigo' :
+        'bg-red-500/20 text-red-400'
+      }`;
+      
+      const occupiedContent = document.getElementById('panel-occupied-content');
+      if (selectedLocker.status === 'occupied') {
+        occupiedContent.classList.remove('hidden');
+        const delivery = deliveries.find(d => d.lockerId === selectedLocker.label);
+        if (delivery) {
+          document.getElementById('panel-resident').textContent = delivery.recipient;
+          document.getElementById('panel-unit').textContent = '#' + delivery.unit;
+          document.getElementById('panel-carrier').textContent = delivery.carrier;
+          document.getElementById('panel-time').textContent = delivery.daysInLocker + ' days';
+        }
+      } else {
+        occupiedContent.classList.add('hidden');
+      }
+    }
+
+    function remoteUnlock() {
+      if (selectedLocker) {
+        alert(`Remote unlock signal sent to ${selectedLocker.label}`);
+        selectedLocker.status = 'available';
+        renderLockerGrid();
+        selectLocker(selectedLocker.id);
+      }
+    }
+
+    // ==================== DELIVERIES TABLE ====================
+    function renderDeliveriesTable(data = deliveries) {
+      const tbody = document.getElementById('deliveries-table-body');
+      if (!tbody) return;
+      
+      tbody.innerHTML = data.map(d => `
+        <tr class="border-b border-white/5">
+          <td class="px-4 py-3 text-gray-400">${d.timestamp}</td>
+          <td class="px-4 py-3 font-mono text-peti-indigo">${d.lockerId}</td>
+          <td class="px-4 py-3">${d.carrier}</td>
+          <td class="px-4 py-3">
+            <p class="text-white">${d.recipient}</p>
+            <p class="text-xs text-gray-500">Unit #${d.unit}</p>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded text-xs ${d.status === 'Stale' ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}">${d.status}</span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2">
+              ${d.confirmation === 'mobile' ? '<i data-lucide="smartphone" class="w-4 h-4 text-peti-cyan" title="Mobile App"></i>' : ''}
+              ${d.confirmation === 'camera' ? '<i data-lucide="video" class="w-4 h-4 text-peti-indigo" title="Camera"></i>' : ''}
+              ${d.confirmation === 'signature' ? '<i data-lucide="pen-tool" class="w-4 h-4 text-green-400" title="Signature"></i>' : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function filterDeliveries() {
+      const search = document.getElementById('deliveries-search').value.toLowerCase();
+      const filtered = deliveries.filter(d => 
+        d.recipient.toLowerCase().includes(search) ||
+        d.unit.includes(search) ||
+        d.id.toLowerCase().includes(search)
+      );
+      renderDeliveriesTable(filtered);
+    }
+
+    // ==================== RESIDENTS TABLE ====================
+    function renderResidentsTable(data = residents) {
+      const tbody = document.getElementById('residents-table-body');
+      if (!tbody) return;
+      
+      tbody.innerHTML = data.map(r => `
+        <tr class="border-b border-white/5">
+          <td class="px-4 py-3 text-white">${r.name}</td>
+          <td class="px-4 py-3 font-mono text-peti-indigo">#${r.unit}</td>
+          <td class="px-4 py-3 text-gray-400">${r.email}</td>
+          <td class="px-4 py-3 text-gray-400">${r.phone}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded text-xs ${r.pending > 0 ? 'bg-peti-indigo/20 text-peti-indigo' : 'bg-gray-500/20 text-gray-400'}">${r.pending} packages</span>
+          </td>
+          <td class="px-4 py-3">
+            <button class="text-peti-cyan hover:text-white text-xs">View</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterResidents() {
+      const search = document.getElementById('residents-search').value.toLowerCase();
+      const filtered = residents.filter(r => 
+        r.name.toLowerCase().includes(search) ||
+        r.unit.includes(search) ||
+        r.email.toLowerCase().includes(search)
+      );
+      renderResidentsTable(filtered);
+    }
+
+    // ==================== STALE PACKAGES ====================
+    function renderStalePackages() {
+      const container = document.getElementById('stale-packages-list');
+      if (!container) return;
+      
+      const stale = deliveries.filter(d => d.status === 'Stale' || d.daysInLocker > 7);
+      container.innerHTML = stale.slice(0, 5).map(d => `
+        <div class="flex items-center gap-3 p-3 border-b border-white/5 hover:bg-white/5 transition-colors">
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-white text-sm">${d.recipient}</span>
+              <span class="text-peti-indigo text-xs font-mono">#${d.unit}</span>
+            </div>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-gray-500 text-xs">${d.carrier}</span>
+              <span class="text-gray-600 text-xs">•</span>
+              <span class="text-gray-500 text-xs">${d.lockerId}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-medium">
+            <i data-lucide="clock" class="w-3 h-3"></i>${d.daysInLocker} days
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function filterStalePackages() {
+      showDashboardView('deliveries');
+      const search = document.getElementById('deliveries-search');
+      if (search) search.value = 'stale';
+      filterDeliveries();
+    }
+
+    function notifyAllStale() {
+      alert('Notifications sent to all residents with stale packages');
+    }
+
+    // ==================== SYNC PROPERTY ====================
+    function showSyncModal() {
+      document.getElementById('syncModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function handleCSVUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        generateDemoData();
+        closeModal('sync');
+      }
+    }
+
+    function generateDemoData() {
+      // Generate more demo residents
+      const firstNames = ['Aarav', 'Vihaan', 'Vivaan', 'Ananya', 'Diya', 'Neha', 'Rohan', 'Aryan', 'Ishaan', 'Saanvi'];
+      const lastNames = ['Sharma', 'Patel', 'Gupta', 'Kumar', 'Singh', 'Reddy', 'Nair', 'Desai', 'Mehta', 'Shah'];
+      
+      for (let i = 0; i < 20; i++) {
+        const name = `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+        residents.push({
+          name,
+          unit: String(Math.floor(Math.random() * 900) + 100),
+          email: `${name.toLowerCase().replace(' ', '.')}@email.com`,
+          phone: `+91 98765 ${String(Math.floor(Math.random() * 90000) + 10000)}`,
+          pending: Math.floor(Math.random() * 4)
+        });
+      }
+      
+      // Generate more deliveries
+      const carriers = ['Amazon', 'Blue Dart', 'Delhivery', 'Flipkart', 'DHL'];
+      for (let i = 0; i < 30; i++) {
+        const resident = residents[Math.floor(Math.random() * residents.length)];
+        const locker = lockers[Math.floor(Math.random() * lockers.length)];
+        locker.status = Math.random() > 0.4 ? 'occupied' : 'available';
+        deliveries.push({
+          id: `PKG-${9000 + i}`,
+          timestamp: new Date(Date.now() - Math.random() * 86400000 * 10).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          lockerId: locker.label,
+          carrier: carriers[Math.floor(Math.random() * carriers.length)],
+          recipient: resident.name,
+          unit: resident.unit,
+          status: Math.random() > 0.85 ? 'Stale' : 'Delivered',
+          confirmation: ['mobile', 'camera', 'signature'][Math.floor(Math.random() * 3)],
+          daysInLocker: Math.floor(Math.random() * 12) + 1
+        });
+      }
+      
+      // Update UI
+      renderResidentsTable();
+      renderDeliveriesTable();
+      renderStalePackages();
+      renderLockerGrid();
+      
+      // Update KPI counts
+      document.getElementById('kpi-deliveries-count').textContent = deliveries.length;
+      document.getElementById('kpi-residents-count').textContent = residents.length;
+      
+      alert('Demo data generated successfully!');
+    }
+
+    // ==================== DASHBOARD NAVIGATION ====================
+    function showDashboardView(view) {
+      currentView = view;
+      
+      // Update nav buttons
+      document.querySelectorAll('.dashboard-nav-item').forEach(el => {
+        el.classList.remove('active', 'text-white', 'border-peti-indigo/50', 'bg-peti-indigo/20');
+        el.classList.add('text-gray-400', 'border-transparent');
+      });
+      const activeNav = document.getElementById(`dash-nav-${view}`);
+      if (activeNav) {
+        activeNav.classList.add('active', 'text-white', 'border-peti-indigo/50', 'bg-peti-indigo/20');
+        activeNav.classList.remove('text-gray-400', 'border-transparent');
+      }
+      
+      // Update KPI card active states
+      document.querySelectorAll('.kpi-card').forEach(el => el.classList.remove('active'));
+      const activeKpi = document.getElementById(`kpi-${view === 'deliveries' ? 'deliveries' : view === 'lockers' ? 'occupancy' : view === 'residents' ? 'residents' : ''}`);
+      if (activeKpi) activeKpi.classList.add('active');
+      
+      // Show/hide views
+      document.querySelectorAll('.dashboard-view').forEach(el => el.classList.add('hidden'));
+      const activeView = document.getElementById(`dashboard-view-${view}`);
+      if (activeView) activeView.classList.remove('hidden');
+      
+      // Refresh data
+      if (view === 'lockers') renderLockerGrid();
+      if (view === 'deliveries') renderDeliveriesTable();
+      if (view === 'residents') renderResidentsTable();
+    }
+
+    // ==================== TERMINAL FEED ====================
+    const terminalLines = [
+      { text: '[SYSTEM] PETI Core v3.2.1 initialized', color: 'text-green-400' },
+      { text: '[NETWORK] Connected to gateway: 192.168.1.1', color: 'text-peti-cyan' },
+      { text: '[LOCKER] S-01: Status OK | Temp: 24°C', color: 'text-gray-400' },
+      { text: '[LOCKER] S-02: OCCUPIED | Package ID: PKG-8921', color: 'text-peti-indigo' },
+      { text: '[LOCKER] M-03: OCCUPIED | Package ID: PKG-8922', color: 'text-peti-indigo' },
+      { text: '[SYNC] Data synced with cloud (42ms latency)', color: 'text-green-400' },
+      { text: '[DELIVERY] Amazon driver authenticated', color: 'text-peti-cyan' },
+      { text: '[OTP] Generated for Unit #410: 7X9K2M', color: 'text-yellow-400' },
+      { text: '[NOTIFY] SMS sent to +91 98XXX XXXXX', color: 'text-gray-400' },
+      { text: '[LOCKER] L-01: Available | Last cleaned: 2h ago', color: 'text-gray-400' },
+      { text: '[HEALTH] All systems nominal', color: 'text-green-400' },
+      { text: '[ANALYTICS] Peak delivery time: 2:00-4:00 PM', color: 'text-peti-cyan' },
+    ];
+
+    function updateTerminal() {
+      const feed = document.getElementById('terminalFeed');
+      if (!feed) return;
+      
+      const now = new Date();
+      const time = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const line = terminalLines[Math.floor(Math.random() * terminalLines.length)];
+      
+      const div = document.createElement('div');
+      div.className = 'flex gap-3';
+      div.innerHTML = `<span class="text-gray-600">${time}</span><span class="${line.color}">${line.text}</span>`;
+      
+      feed.appendChild(div);
+      if (feed.children.length > 12) feed.removeChild(feed.firstChild);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    setInterval(updateTerminal, 1500);
+    for (let i = 0; i < 8; i++) updateTerminal();
+
+    // ==================== VIEW MANAGEMENT ====================
+    function showView(view) {
+      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+      if (view === 'landing') document.getElementById('landingView').classList.add('active');
+    }
+
+    // ==================== MODAL MANAGEMENT ====================
+    function openModal(modal) {
+      document.getElementById(modal + 'Modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modal) {
+      const modalEl = document.getElementById(modal + 'Modal');
+      if (modalEl) {
+        modalEl.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function switchModal(from, to) {
+      closeModal(from);
+      setTimeout(() => openModal(to), 200);
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          const modalId = modal.id.replace('Modal', '');
+          closeModal(modalId);
+        }
+      });
+    });
+
+    // ==================== FORM HANDLERS ====================
+    function handleLogin(e) {
+      e.preventDefault();
+      alert('Login functionality would authenticate user here.');
+      closeModal('login');
+    }
+
+    function handleSignup(e) {
+      e.preventDefault();
+      alert('Account created successfully!');
+      closeModal('signup');
+    }
+
+    function handleInquire(e) {
+      e.preventDefault();
+      alert('Thank you for your inquiry! We will contact you shortly.');
+      closeModal('inquire');
+    }
+
+    function handleManagerLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('managerEmail').value;
+      const password = document.getElementById('managerPassword').value;
+      
+      if (email === 'property@gmail.com' && password === '1234') {
+        closeModal('manager');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const progressBar = document.getElementById('progressBar');
+        const loadingText = document.getElementById('loadingText');
+        const messages = ['Establishing secure connection...', 'Authenticating property credentials...', 'Loading resident database...', 'Syncing locker status...', 'Initializing dashboard modules...', 'Welcome to PETI Command Center.'];
+        
+        loadingOverlay.classList.remove('hidden');
+        loadingOverlay.classList.add('flex');
+        
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 18;
+          if (progress > 100) progress = 100;
+          progressBar.style.width = progress + '%';
+          loadingText.textContent = messages[Math.min(Math.floor(progress / 20), messages.length - 1)];
+          
+          if (progress === 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+              loadingOverlay.classList.add('hidden');
+              loadingOverlay.classList.remove('flex');
+              document.getElementById('landingView').classList.remove('active');
+              document.getElementById('dashboardView').classList.add('active');
+              initDemoData();
+              renderStalePackages();
+              renderLockerGrid();
+              renderDeliveriesTable();
+              renderResidentsTable();
+            }, 500);
+          }
+        }, 200);
+      } else {
+        alert('Invalid credentials. Use property@gmail.com / 1234 for demo.');
+      }
+    }
+
+    function logout() {
+      document.getElementById('dashboardView').classList.remove('active');
+      document.getElementById('landingView').classList.add('active');
+    }
+
+    // ==================== SMOOTH SCROLL ====================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Initialize Lucide icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
