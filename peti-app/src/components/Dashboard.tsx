@@ -98,7 +98,10 @@ export default function Dashboard() {
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center">
             <X className="w-5 h-5 text-white" strokeWidth={2.5} />
           </div>
-          <span className="font-space font-bold text-white text-lg">Nexa Crux</span>
+          <div>
+            <h1 className="font-space font-bold text-white text-sm">Nexa Crux</h1>
+            <p className="text-xs text-gray-500">Command Center</p>
+          </div>
         </div>
 
         {/* Center: Navigation Links */}

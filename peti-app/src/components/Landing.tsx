@@ -74,13 +74,10 @@ export default function Landing() {
     <div className="min-h-screen bg-nexa-black">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-nav">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center">
-                <X className="w-6 h-6 text-white" strokeWidth={2.5} />
-              </div>
-              <span className="font-space font-semibold text-xl tracking-tight">Nexa Crux</span>
+            <div className="flex items-center">
+              <img src="/assets/nexa-crux-logo.png" alt="Nexa Crux" className="h-20" />
             </div>
             
             <div className="hidden md:flex items-center gap-8">
