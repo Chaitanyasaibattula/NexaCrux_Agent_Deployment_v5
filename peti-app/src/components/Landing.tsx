@@ -77,7 +77,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src="./assets/nexa-crux-logo.png" alt="Nexa Crux" className="h-20" />
+              <img src="/assets/nexa-crux-logo.png" alt="Nexa Crux" className="h-20" />
             </div>
             
             <div className="hidden md:flex items-center gap-8">
@@ -230,7 +230,7 @@ export default function Landing() {
           <div className="mb-16 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-nexa-indigo/10 to-nexa-cyan/10 rounded-3xl blur-3xl"></div>
             <div className="relative rounded-2xl overflow-hidden border border-white/10">
-              <img src="/assets/peti-hardware-100.jpg" alt="Nexa Crux Intelligent Locker System - 100 Units" className="w-full h-auto object-cover" />
+              <img src="/assets/peti-hardware-100.png" alt="Nexa Crux Intelligent Locker System - 100 Units" className="w-full h-auto object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-nexa-black/60 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -417,7 +417,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="sector-card glass-card rounded-2xl overflow-hidden group cursor-pointer">
               <div className="relative h-64">
-                <img src="/assets/sector-residential.jpg" alt="Luxury Residential" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src="/assets/sector-residential.png" alt="Luxury Residential" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-nexa-black/95 via-nexa-black/50 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <div className="flex items-center gap-3 mb-2">
@@ -433,7 +433,7 @@ export default function Landing() {
             
             <div className="sector-card glass-card rounded-2xl overflow-hidden group cursor-pointer">
               <div className="relative h-64">
-                <img src="/assets/sector-commercial.jpg" alt="Commercial Hubs" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src="/assets/sector-commercial.png" alt="Commercial Hubs" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-nexa-black/95 via-nexa-black/50 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <div className="flex items-center gap-3 mb-2">
@@ -449,7 +449,7 @@ export default function Landing() {
             
             <div className="sector-card glass-card rounded-2xl overflow-hidden group cursor-pointer">
               <div className="relative h-64">
-                <img src="/assets/sector-education.jpg" alt="Education" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src="/assets/sector-education.png" alt="Education" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-nexa-black/95 via-nexa-black/50 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <div className="flex items-center gap-3 mb-2">
@@ -465,7 +465,7 @@ export default function Landing() {
             
             <div className="sector-card glass-card rounded-2xl overflow-hidden group cursor-pointer">
               <div className="relative h-64">
-                <img src="/assets/sector-healthcare.jpg" alt="Healthcare" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src="/assets/sector-healthcare.png" alt="Healthcare" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-nexa-black/95 via-nexa-black/50 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <div className="flex items-center gap-3 mb-2">
