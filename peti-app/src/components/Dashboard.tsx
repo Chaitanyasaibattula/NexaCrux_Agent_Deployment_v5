@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp, X } from 'lucide-react';
+import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -92,15 +92,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen" style={{background: '#050505'}}>
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 h-16 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between px-6 z-50" style={{background: 'rgba(0, 0, 0, 0.6)'}}>
+      <header className="fixed top-0 left-0 right-0 h-20 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between px-6 z-50" style={{background: 'rgba(0, 0, 0, 0.6)'}}>
         {/* Left: Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center">
-            <X className="w-5 h-5 text-white" strokeWidth={2.5} />
-          </div>
+          <img src={`${import.meta.env.BASE_URL}assets/nexa-crux-logo.png`} alt="Nexa Crux" className="h-16" />
           <div>
-            <h1 className="font-space font-bold text-white text-sm">Nexa Crux</h1>
-            <p className="text-xs text-gray-500">Command Center</p>
+            <h1 className="font-space font-bold text-white text-base">Command Center</h1>
           </div>
         </div>
 
@@ -153,7 +150,7 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content - View Switching */}
-      <main className="pt-16 min-h-screen px-6 py-6">
+      <main className="pt-20 min-h-screen px-6 py-6">
         
         {/* OVERVIEW VIEW */}
         {activeView === 'overview' && (
@@ -226,7 +223,7 @@ export default function Dashboard() {
                   <option value="month">This Month</option>
                 </select>
               </div>
-              <div className="h-80">
+              <div className="h-64">
                 <Line data={getChartData()} options={chartOptions} />
               </div>
             </div>
@@ -252,29 +249,80 @@ export default function Dashboard() {
                 <span className="text-sm text-gray-400 font-mono">Occupied</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded animate-pulse" style={{background: '#ef4444'}}></div>
-                <span className="text-sm text-gray-400 font-mono">Issue/Stale</span>
+                <div className="w-4 h-4 rounded" style={{background: '#ef4444'}}></div>
+                <span className="text-sm text-gray-400 font-mono">Issue</span>
               </div>
             </div>
 
-            {/* Locker Grid */}
-            <div className="glass-card rounded-xl p-6">
-              <div className="grid grid-cols-10 gap-2">
-                {lockers.map((locker) => {
-                  const bgColor = locker.status === 'available' ? '#22c55e' : locker.status === 'occupied' ? '#8b5cf6' : '#ef4444';
-                  const isPulse = locker.status === 'issue';
-                  
-                  return (
-                    <div
-                      key={locker.id}
-                      className={`aspect-square rounded-lg flex items-center justify-center border border-white/10 transition-all hover:scale-110 cursor-pointer ${isPulse ? 'animate-pulse' : ''}`}
-                      style={{background: bgColor}}
-                      title={`${locker.label} - ${locker.status}`}
-                    >
-                      <span className="text-xs font-mono font-bold text-white">{locker.label.split('-')[1]}</span>
-                    </div>
-                  );
-                })}
+            {/* Locker Bank View */}
+            <div className="glass-card rounded-xl p-6 space-y-8">
+              {/* Large Lockers (L-85 to L-100) */}
+              <div>
+                <h3 className="text-gray-400 text-xs font-mono uppercase mb-4">LARGE LOCKERS (L-85 TO L-100)</h3>
+                <div className="grid grid-cols-8 gap-3">
+                  {lockers.filter(l => l.size === 'large').map((locker) => {
+                    const delivery = deliveries.find(d => d.lockerId === locker.label);
+                    const isStale = delivery && delivery.daysInLocker > 7;
+                    const bgColor = isStale ? '#ef4444' : locker.status === 'available' ? '#22c55e' : locker.status === 'occupied' ? '#8b5cf6' : '#ef4444';
+                    
+                    return (
+                      <div
+                        key={locker.id}
+                        className="h-16 rounded-lg flex items-center justify-center border border-white/10 transition-all hover:scale-105 cursor-pointer"
+                        style={{background: bgColor}}
+                        title={`${locker.label} - ${isStale ? 'Stale' : locker.status}`}
+                      >
+                        <span className="text-sm font-mono font-bold text-white">{locker.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Medium Lockers (M-51 to M-84) */}
+              <div>
+                <h3 className="text-gray-400 text-xs font-mono uppercase mb-4">MEDIUM LOCKERS (M-51 TO M-84)</h3>
+                <div className="grid grid-cols-12 gap-2">
+                  {lockers.filter(l => l.size === 'medium').map((locker) => {
+                    const delivery = deliveries.find(d => d.lockerId === locker.label);
+                    const isStale = delivery && delivery.daysInLocker > 7;
+                    const bgColor = isStale ? '#ef4444' : locker.status === 'available' ? '#22c55e' : locker.status === 'occupied' ? '#8b5cf6' : '#ef4444';
+                    
+                    return (
+                      <div
+                        key={locker.id}
+                        className="h-12 rounded-lg flex items-center justify-center border border-white/10 transition-all hover:scale-105 cursor-pointer"
+                        style={{background: bgColor}}
+                        title={`${locker.label} - ${isStale ? 'Stale' : locker.status}`}
+                      >
+                        <span className="text-xs font-mono font-bold text-white">{locker.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Small Lockers (S-01 to S-50) */}
+              <div>
+                <h3 className="text-gray-400 text-xs font-mono uppercase mb-4">SMALL LOCKERS (S-01 TO S-50)</h3>
+                <div className="grid grid-cols-10 gap-2">
+                  {lockers.filter(l => l.size === 'small').map((locker) => {
+                    const delivery = deliveries.find(d => d.lockerId === locker.label);
+                    const isStale = delivery && delivery.daysInLocker > 7;
+                    const bgColor = isStale ? '#ef4444' : locker.status === 'available' ? '#22c55e' : locker.status === 'occupied' ? '#8b5cf6' : '#ef4444';
+                    
+                    return (
+                      <div
+                        key={locker.id}
+                        className="h-10 rounded-lg flex items-center justify-center border border-white/10 transition-all hover:scale-105 cursor-pointer"
+                        style={{background: bgColor}}
+                        title={`${locker.label} - ${isStale ? 'Stale' : locker.status}`}
+                      >
+                        <span className="text-xs font-mono font-bold text-white">{locker.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
