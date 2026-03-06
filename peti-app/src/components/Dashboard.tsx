@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp, Search, PenTool, X, Box, Calendar, User, Hash, Plus, ChevronDown } from 'lucide-react';
+import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp, Search, PenTool, X, Box, Calendar, User, Hash, Plus, ChevronDown, UserCircle, Settings, Activity, LogOut } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [residentSearch, setResidentSearch] = useState('');
   const [selectedLocker, setSelectedLocker] = useState<number | null>(null);
   const [showTicketModal, setShowTicketModal] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [ticketForm, setTicketForm] = useState({
     lockerId: '',
     category: 'Hardware Jam' as 'Hardware Jam' | 'Touchscreen Unresponsive' | 'Sensor Error' | 'Power Issue' | 'Other',
@@ -145,17 +146,71 @@ export default function Dashboard() {
           </button>
         </nav>
 
-        {/* Right: Help & Sign Out */}
-        <div className="flex items-center gap-3">
-          <button className="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors">
-            <HelpCircle className="w-4 h-4 text-gray-400" />
-          </button>
+        {/* Right: Profile Dropdown */}
+        <div className="relative">
           <button 
-            onClick={logout}
-            className="px-4 py-2 rounded-lg border border-white/20 text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors"
+            onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+            className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
           >
-            Sign Out
+            <UserCircle className="w-5 h-5 text-nexa-cyan" style={{filter: 'drop-shadow(0 0 8px rgba(0, 242, 255, 0.5))'}} />
+            <span className="font-space font-bold text-sm text-white">Oberoi Skyline</span>
+            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
+              showProfileDropdown ? 'rotate-180' : ''
+            }`} />
           </button>
+
+          {/* Dropdown Menu */}
+          {showProfileDropdown && (
+            <>
+              {/* Backdrop to close dropdown */}
+              <div 
+                className="fixed inset-0 z-30"
+                onClick={() => setShowProfileDropdown(false)}
+              />
+              
+              {/* Dropdown Panel */}
+              <div className="absolute right-0 top-full mt-2 w-72 bg-nexa-surface/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-40 overflow-hidden animate-slide-down">
+                {/* Header Section */}
+                <div className="px-4 py-3 border-b border-white/5">
+                  <p className="text-xs font-mono uppercase text-gray-500 mb-1">Manager Account</p>
+                  <p className="text-sm font-mono text-gray-300">manager@oberoi.com</p>
+                </div>
+
+                {/* Menu Options */}
+                <div className="py-2">
+                  <button className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left">
+                    <Settings className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-mono text-white">Settings</span>
+                  </button>
+                  <button className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left">
+                    <HelpCircle className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-mono text-white">Help & Support</span>
+                  </button>
+                  <button className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left">
+                    <Activity className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-mono text-white">System Status</span>
+                  </button>
+                </div>
+
+                {/* Divider */}
+                <div className="border-b border-white/5" />
+
+                {/* Sign Out */}
+                <div className="py-2">
+                  <button 
+                    onClick={() => {
+                      setShowProfileDropdown(false);
+                      logout();
+                    }}
+                    className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-red-500/10 transition-colors text-left"
+                  >
+                    <LogOut className="w-4 h-4 text-red-400" />
+                    <span className="text-sm font-mono text-red-400 font-semibold">Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
