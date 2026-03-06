@@ -2,6 +2,9 @@ export type LockerSize = 'small' | 'medium' | 'large';
 export type LockerStatus = 'available' | 'occupied' | 'issue';
 export type DeliveryStatus = 'Delivered' | 'Stale' | 'Picked Up';
 export type ConfirmationType = 'mobile' | 'camera' | 'signature';
+export type TicketStatus = 'Open' | 'In Progress' | 'Resolved';
+export type TicketPriority = 'Low' | 'Medium' | 'High' | 'Emergency';
+export type IssueCategory = 'Hardware Jam' | 'Touchscreen Unresponsive' | 'Sensor Error' | 'Power Issue' | 'Other';
 
 export interface Locker {
   id: number;
@@ -31,6 +34,17 @@ export interface Delivery {
   pickupTime?: string;
 }
 
+export interface Ticket {
+  id: string;
+  lockerId: string;
+  category: IssueCategory;
+  priority: TicketPriority;
+  status: TicketStatus;
+  description: string;
+  createdAt: string;
+  assignedTo: string;
+}
+
 export interface AuthState {
   isAuthenticated: boolean;
   userType: 'resident' | 'manager' | 'admin' | null;
@@ -41,5 +55,6 @@ export interface AppState {
   residents: Resident[];
   deliveries: Delivery[];
   lockers: Locker[];
+  tickets: Ticket[];
   auth: AuthState;
 }

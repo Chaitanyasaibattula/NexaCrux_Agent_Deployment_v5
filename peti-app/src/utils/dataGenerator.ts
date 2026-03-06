@@ -1,4 +1,4 @@
-import { Locker, Resident, Delivery } from '../types';
+import { Locker, Resident, Delivery, Ticket } from '../types';
 
 export const generateLockers = (): Locker[] => {
   const lockers: Locker[] = [];
@@ -139,4 +139,47 @@ export const generateNewDelivery = (residents: Resident[], lockers: Locker[]): {
   };
   
   return { delivery, lockerId: locker.id };
+};
+
+export const generateInitialTickets = (lockers: Locker[]): Ticket[] => {
+  const categories: Array<'Hardware Jam' | 'Touchscreen Unresponsive' | 'Sensor Error' | 'Power Issue' | 'Other'> = [
+    'Hardware Jam', 'Touchscreen Unresponsive', 'Sensor Error', 'Power Issue', 'Other'
+  ];
+  const techNames = ['Nexa Support Tech #1', 'Nexa Support Tech #2', 'Nexa Support Tech #3', 'Nexa Support Tech #4', 'Nexa Support Tech #5'];
+  
+  const tickets: Ticket[] = [];
+  
+  // Generate 5 tickets: 2 Resolved, 1 In Progress, 1 Open, 1 Emergency Open
+  const ticketConfigs = [
+    { status: 'Resolved' as const, priority: 'Medium' as const, daysAgo: 10 },
+    { status: 'Resolved' as const, priority: 'Low' as const, daysAgo: 7 },
+    { status: 'In Progress' as const, priority: 'High' as const, daysAgo: 2 },
+    { status: 'Open' as const, priority: 'Medium' as const, daysAgo: 1 },
+    { status: 'Open' as const, priority: 'Emergency' as const, daysAgo: 0 },
+  ];
+  
+  ticketConfigs.forEach((config, index) => {
+    const locker = lockers[Math.floor(Math.random() * lockers.length)];
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const createdAt = new Date(Date.now() - config.daysAgo * 86400000);
+    
+    tickets.push({
+      id: `NC-${8820 + index}`,
+      lockerId: locker.label,
+      category,
+      priority: config.priority,
+      status: config.status,
+      description: `${category} detected in ${locker.label}. ${config.priority === 'Emergency' ? 'Immediate attention required.' : 'Requires maintenance check.'}`,
+      createdAt: createdAt.toLocaleString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }),
+      assignedTo: techNames[Math.floor(Math.random() * techNames.length)]
+    });
+  });
+  
+  return tickets;
 };

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { AppState, Resident, Delivery, Locker, AuthState } from '../types';
+import { AppState, Resident, Delivery, Locker, AuthState, Ticket } from '../types';
 import { storage } from '../utils/storage';
-import { generateLockers, generateInitialResidents, generateInitialDeliveries, generateNewDelivery } from '../utils/dataGenerator';
+import { generateLockers, generateInitialResidents, generateInitialDeliveries, generateNewDelivery, generateInitialTickets } from '../utils/dataGenerator';
 
 interface AppContextType extends AppState {
   login: (email: string, password: string, userType: 'resident' | 'manager' | 'admin') => boolean;
@@ -10,6 +10,8 @@ interface AppContextType extends AppState {
   addDelivery: (delivery: Delivery) => void;
   addResident: (resident: Resident) => void;
   generateDemoData: () => void;
+  addTicket: (ticket: Ticket) => void;
+  updateTicketStatus: (ticketId: string, status: 'Open' | 'In Progress' | 'Resolved') => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -18,6 +20,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [residents, setResidents] = useState<Resident[]>([]);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [lockers, setLockers] = useState<Locker[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [auth, setAuth] = useState<AuthState>({
     isAuthenticated: false,
     userType: null,
@@ -35,22 +38,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setResidents(savedState.residents);
       setDeliveries(savedState.deliveries);
       setLockers(savedState.lockers);
+      setTickets(savedState.tickets || []);
     } else {
       const initialLockers = generateLockers();
       const initialResidents = generateInitialResidents();
       const initialDeliveries = generateInitialDeliveries(initialResidents, initialLockers);
+      const initialTickets = generateInitialTickets(initialLockers);
       
       setLockers(initialLockers);
       setResidents(initialResidents);
       setDeliveries(initialDeliveries);
+      setTickets(initialTickets);
     }
   }, []);
 
   useEffect(() => {
-    if (residents.length > 0 || deliveries.length > 0 || lockers.length > 0) {
-      storage.saveState({ residents, deliveries, lockers });
+    if (residents.length > 0 || deliveries.length > 0 || lockers.length > 0 || tickets.length > 0) {
+      storage.saveState({ residents, deliveries, lockers, tickets });
     }
-  }, [residents, deliveries, lockers]);
+  }, [residents, deliveries, lockers, tickets]);
 
   useEffect(() => {
     storage.saveAuth(auth);
@@ -139,6 +145,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setResidents(prev => [...prev, resident]);
   }, []);
 
+  const addTicket = useCallback((ticket: Ticket) => {
+    setTickets(prev => [...prev, ticket]);
+    // Auto-set locker to issue status
+    const locker = lockers.find(l => l.label === ticket.lockerId);
+    if (locker && ticket.status !== 'Resolved') {
+      updateLockerStatus(locker.id, 'issue');
+    }
+  }, [lockers]);
+
+  const updateTicketStatus = useCallback((ticketId: string, status: 'Open' | 'In Progress' | 'Resolved') => {
+    setTickets(prev => prev.map(t => {
+      if (t.id === ticketId) {
+        const updatedTicket = { ...t, status };
+        // If resolved, clear issue status from locker
+        if (status === 'Resolved') {
+          const locker = lockers.find(l => l.label === t.lockerId);
+          if (locker && locker.status === 'issue') {
+            // Check if there are other open tickets for this locker
+            const otherOpenTickets = prev.filter(ticket => 
+              ticket.lockerId === t.lockerId && 
+              ticket.id !== ticketId && 
+              ticket.status !== 'Resolved'
+            );
+            if (otherOpenTickets.length === 0) {
+              updateLockerStatus(locker.id, 'available');
+            }
+          }
+        }
+        return updatedTicket;
+      }
+      return t;
+    }));
+  }, [lockers]);
+
   const generateDemoData = useCallback(() => {
     const firstNames = ['Aarav', 'Vihaan', 'Vivaan', 'Ananya', 'Diya', 'Neha', 'Rohan', 'Aryan', 'Ishaan', 'Saanvi'];
     const lastNames = ['Sharma', 'Patel', 'Gupta', 'Kumar', 'Singh', 'Reddy', 'Nair', 'Desai', 'Mehta', 'Shah'];
@@ -198,13 +238,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       residents,
       deliveries,
       lockers,
+      tickets,
       auth,
       login,
       logout,
       updateLockerStatus,
       addDelivery,
       addResident,
-      generateDemoData
+      generateDemoData,
+      addTicket,
+      updateTicketStatus
     }}>
       {children}
     </AppContext.Provider>

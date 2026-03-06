@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp, Search, PenTool, X, Box, Calendar, User, Hash } from 'lucide-react';
+import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp, Search, PenTool, X, Box, Calendar, User, Hash, Plus, ChevronDown } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -20,12 +20,19 @@ type ViewName = 'overview' | 'locker-map' | 'deliveries' | 'residents' | 'ticket
 type TimeFilter = 'day' | 'week' | 'month';
 
 export default function Dashboard() {
-  const { logout, deliveries, lockers, residents } = useApp();
+  const { logout, deliveries, lockers, residents, tickets, addTicket, updateTicketStatus } = useApp();
   const [activeView, setActiveView] = useState<ViewName>('overview');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('day');
   const [deliverySearch, setDeliverySearch] = useState('');
   const [residentSearch, setResidentSearch] = useState('');
   const [selectedLocker, setSelectedLocker] = useState<number | null>(null);
+  const [showTicketModal, setShowTicketModal] = useState(false);
+  const [ticketForm, setTicketForm] = useState({
+    lockerId: '',
+    category: 'Hardware Jam' as 'Hardware Jam' | 'Touchscreen Unresponsive' | 'Sensor Error' | 'Power Issue' | 'Other',
+    priority: 'Medium' as 'Low' | 'Medium' | 'High' | 'Emergency',
+    description: ''
+  });
 
   const occupiedCount = lockers.filter(l => l.status === 'occupied').length;
   const unoccupiedCount = lockers.filter(l => l.status === 'available').length;
@@ -664,18 +671,220 @@ export default function Dashboard() {
         {/* TICKETS VIEW */}
         {activeView === 'tickets' && (
           <div className="animate-fade-in">
-            <div className="mb-6">
-              <h2 className="font-space font-bold text-2xl text-white mb-2">Maintenance Tickets</h2>
-              <p className="text-gray-400 text-sm font-mono">Raise and track system issues</p>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="font-space font-bold text-2xl text-white mb-2">Maintenance Tickets</h2>
+                <p className="text-gray-400 text-sm font-mono">Raise and track system issues</p>
+              </div>
+              <button
+                onClick={() => setShowTicketModal(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-nexa-cyan text-nexa-black font-mono font-semibold text-sm hover:bg-nexa-cyan/90 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Raise New Ticket
+              </button>
             </div>
             
-            <div className="glass-card rounded-xl p-12 text-center">
-              <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center mx-auto mb-6 opacity-50">
-                <AlertCircle className="w-10 h-10 text-white" />
+            <div className="glass-card rounded-xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10" style={{background: 'rgba(26, 26, 46, 0.5)'}}>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Ticket ID</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Date Created</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Subject</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Priority</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Status</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Assigned To</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tickets.map((ticket) => (
+                      <tr key={ticket.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td className="py-4 px-6">
+                          <div className="text-nexa-cyan text-sm font-mono font-semibold">#{ticket.id}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-white text-sm font-mono">{ticket.createdAt}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-white text-sm font-mono font-medium">{ticket.category} - {ticket.lockerId}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`text-sm font-mono font-semibold ${
+                            ticket.priority === 'Emergency' ? 'text-red-400' :
+                            ticket.priority === 'High' ? 'text-orange-400' :
+                            ticket.priority === 'Medium' ? 'text-yellow-400' :
+                            'text-gray-400'
+                          }`}>
+                            {ticket.priority}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-medium ${
+                            ticket.status === 'Open' ? 'bg-red-500/20 text-red-400 animate-pulse' :
+                            ticket.status === 'In Progress' ? 'bg-amber-500/20 text-amber-400' :
+                            'bg-green-500/20 text-green-400'
+                          }`}>
+                            {ticket.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-gray-300 text-sm font-mono">{ticket.assignedTo}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          {ticket.status !== 'Resolved' && (
+                            <select
+                              value={ticket.status}
+                              onChange={(e) => updateTicketStatus(ticket.id, e.target.value as 'Open' | 'In Progress' | 'Resolved')}
+                              className="px-3 py-1.5 rounded-lg border border-white/20 bg-nexa-surface/50 text-white text-xs font-mono cursor-pointer hover:border-nexa-cyan transition-colors"
+                            >
+                              <option value="Open">Open</option>
+                              <option value="In Progress">In Progress</option>
+                              <option value="Resolved">Resolved</option>
+                            </select>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <h3 className="font-space font-bold text-xl text-white mb-2">Tickets Module</h3>
-              <p className="text-gray-400 font-mono text-sm">This feature is coming soon. You'll be able to raise maintenance requests for locker issues.</p>
             </div>
+
+            {/* Ticket Creation Modal */}
+            {showTicketModal && (
+              <>
+                <div 
+                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+                  onClick={() => setShowTicketModal(false)}
+                />
+                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-nexa-surface/90 backdrop-blur-xl border border-nexa-cyan/30 rounded-xl shadow-2xl z-50 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-space font-bold text-xl text-white">Raise New Ticket</h3>
+                    <button
+                      onClick={() => setShowTicketModal(false)}
+                      className="w-8 h-8 rounded-lg border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+                    >
+                      <X className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Locker ID Dropdown */}
+                    <div>
+                      <label className="block text-sm font-mono text-gray-400 mb-2">Locker ID</label>
+                      <div className="relative">
+                        <select
+                          value={ticketForm.lockerId}
+                          onChange={(e) => setTicketForm({...ticketForm, lockerId: e.target.value})}
+                          className="w-full px-4 py-2.5 rounded-lg border border-white/20 bg-nexa-surface/50 text-white font-mono text-sm appearance-none cursor-pointer focus:outline-none focus:border-nexa-cyan transition-colors"
+                        >
+                          <option value="">Select a locker...</option>
+                          {lockers.map(locker => (
+                            <option key={locker.id} value={locker.label}>
+                              {locker.label} ({locker.size})
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Issue Category */}
+                    <div>
+                      <label className="block text-sm font-mono text-gray-400 mb-2">Issue Category</label>
+                      <div className="relative">
+                        <select
+                          value={ticketForm.category}
+                          onChange={(e) => setTicketForm({...ticketForm, category: e.target.value as any})}
+                          className="w-full px-4 py-2.5 rounded-lg border border-white/20 bg-nexa-surface/50 text-white font-mono text-sm appearance-none cursor-pointer focus:outline-none focus:border-nexa-cyan transition-colors"
+                        >
+                          <option value="Hardware Jam">Hardware Jam</option>
+                          <option value="Touchscreen Unresponsive">Touchscreen Unresponsive</option>
+                          <option value="Sensor Error">Sensor Error</option>
+                          <option value="Power Issue">Power Issue</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Priority Level */}
+                    <div>
+                      <label className="block text-sm font-mono text-gray-400 mb-2">Priority Level</label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {(['Low', 'Medium', 'High', 'Emergency'] as const).map(priority => (
+                          <button
+                            key={priority}
+                            onClick={() => setTicketForm({...ticketForm, priority})}
+                            className={`px-3 py-2 rounded-lg border text-xs font-mono font-semibold transition-all ${
+                              ticketForm.priority === priority
+                                ? priority === 'Emergency' ? 'border-red-400 bg-red-500/20 text-red-400' :
+                                  priority === 'High' ? 'border-orange-400 bg-orange-500/20 text-orange-400' :
+                                  priority === 'Medium' ? 'border-yellow-400 bg-yellow-500/20 text-yellow-400' :
+                                  'border-gray-400 bg-gray-500/20 text-gray-400'
+                                : 'border-white/20 text-gray-400 hover:border-white/40'
+                            }`}
+                          >
+                            {priority}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="block text-sm font-mono text-gray-400 mb-2">Description</label>
+                      <textarea
+                        value={ticketForm.description}
+                        onChange={(e) => setTicketForm({...ticketForm, description: e.target.value})}
+                        rows={4}
+                        placeholder="Describe the issue in detail..."
+                        className="w-full px-4 py-2.5 rounded-lg border border-white/20 bg-nexa-surface/50 text-white font-mono text-sm placeholder-gray-500 focus:outline-none focus:border-nexa-cyan transition-colors resize-none"
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      onClick={() => {
+                        if (ticketForm.lockerId && ticketForm.description) {
+                          const newTicket = {
+                            id: `NC-${8825 + tickets.length}`,
+                            lockerId: ticketForm.lockerId,
+                            category: ticketForm.category,
+                            priority: ticketForm.priority,
+                            status: 'Open' as const,
+                            description: ticketForm.description,
+                            createdAt: new Date().toLocaleString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            }),
+                            assignedTo: `Nexa Support Tech #${Math.floor(Math.random() * 5) + 1}`
+                          };
+                          addTicket(newTicket);
+                          setShowTicketModal(false);
+                          setTicketForm({
+                            lockerId: '',
+                            category: 'Hardware Jam',
+                            priority: 'Medium',
+                            description: ''
+                          });
+                        }
+                      }}
+                      disabled={!ticketForm.lockerId || !ticketForm.description}
+                      className="w-full px-4 py-3 rounded-lg bg-nexa-cyan text-nexa-black font-mono font-semibold text-sm hover:bg-nexa-cyan/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Create Ticket
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
       </main>
