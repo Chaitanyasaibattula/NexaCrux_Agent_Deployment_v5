@@ -30,6 +30,7 @@ export default {
         'scale-in': 'scaleIn 0.3s ease-out forwards',
         'marquee-rtl': 'marqueeRTL 25s linear infinite',
         'heartbeat': 'heartbeat 1.5s ease-in-out infinite',
+        'slide-in-right': 'slideInRight 0.3s ease-out forwards',
       },
       keyframes: {
         float: {
@@ -65,6 +66,10 @@ export default {
         heartbeat: {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },
           '50%': { opacity: '0.6', transform: 'scale(1.1)' },
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
         },
       },
     },

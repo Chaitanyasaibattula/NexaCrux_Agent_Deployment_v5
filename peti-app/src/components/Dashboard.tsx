@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp, Search, PenTool } from 'lucide-react';
+import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp, Search, PenTool, X, Box, Calendar, User, Hash } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('day');
   const [deliverySearch, setDeliverySearch] = useState('');
   const [residentSearch, setResidentSearch] = useState('');
+  const [selectedLocker, setSelectedLocker] = useState<number | null>(null);
 
   const occupiedCount = lockers.filter(l => l.status === 'occupied').length;
   const unoccupiedCount = lockers.filter(l => l.status === 'available').length;
@@ -257,7 +258,7 @@ export default function Dashboard() {
             </div>
 
             {/* Locker Bank View */}
-            <div className="glass-card rounded-xl p-6 space-y-8">
+            <div className="glass-card rounded-xl p-6 space-y-8 relative">
               {/* Large Lockers (L-85 to L-100) */}
               <div>
                 <h3 className="text-gray-400 text-xs font-mono uppercase mb-4">LARGE LOCKERS (L-85 TO L-100)</h3>
@@ -270,6 +271,7 @@ export default function Dashboard() {
                     return (
                       <div
                         key={locker.id}
+                        onClick={() => setSelectedLocker(locker.id)}
                         className="h-16 rounded-lg flex items-center justify-center border border-white/10 transition-all hover:scale-105 cursor-pointer"
                         style={{background: bgColor}}
                         title={`${locker.label} - ${isStale ? 'Stale' : locker.status}`}
@@ -293,6 +295,7 @@ export default function Dashboard() {
                     return (
                       <div
                         key={locker.id}
+                        onClick={() => setSelectedLocker(locker.id)}
                         className="h-12 rounded-lg flex items-center justify-center border border-white/10 transition-all hover:scale-105 cursor-pointer"
                         style={{background: bgColor}}
                         title={`${locker.label} - ${isStale ? 'Stale' : locker.status}`}
@@ -316,6 +319,7 @@ export default function Dashboard() {
                     return (
                       <div
                         key={locker.id}
+                        onClick={() => setSelectedLocker(locker.id)}
                         className="h-10 rounded-lg flex items-center justify-center border border-white/10 transition-all hover:scale-105 cursor-pointer"
                         style={{background: bgColor}}
                         title={`${locker.label} - ${isStale ? 'Stale' : locker.status}`}
@@ -327,6 +331,173 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Sidebar Overlay */}
+            {selectedLocker !== null && (
+              <>
+                {/* Backdrop */}
+                <div 
+                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                  onClick={() => setSelectedLocker(null)}
+                />
+                
+                {/* Sidebar Panel */}
+                <div className="fixed top-0 right-0 h-full w-96 bg-nexa-surface/90 backdrop-blur-xl border-l-4 border-nexa-cyan shadow-2xl z-50 animate-slide-in-right overflow-y-auto">
+                  {(() => {
+                    const locker = lockers.find(l => l.id === selectedLocker);
+                    if (!locker) return null;
+                    
+                    const delivery = deliveries.find(d => d.lockerId === locker.label);
+                    const isStale = delivery && delivery.daysInLocker > 7;
+                    const displayStatus = isStale ? 'Issue' : locker.status;
+                    
+                    return (
+                      <div className="p-6">
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-6">
+                          <div>
+                            <h2 className="font-space font-bold text-2xl text-white mb-2">{locker.label}</h2>
+                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-mono font-medium ${
+                              displayStatus === 'available' ? 'bg-green-500/20 text-green-400' :
+                              displayStatus === 'occupied' ? 'bg-purple-500/20 text-purple-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {displayStatus.toUpperCase()}
+                            </span>
+                          </div>
+                          <button 
+                            onClick={() => setSelectedLocker(null)}
+                            className="w-8 h-8 rounded-lg border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+                          >
+                            <X className="w-4 h-4 text-gray-400" />
+                          </button>
+                        </div>
+
+                        {/* Locker Info */}
+                        <div className="space-y-4 mb-6">
+                          <div className="glass-card rounded-lg p-4 border border-white/10">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-lg bg-nexa-cyan/20 flex items-center justify-center">
+                                <Box className="w-5 h-5 text-nexa-cyan" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-400 font-mono uppercase">Locker Size</p>
+                                <p className="text-white font-mono font-semibold capitalize">{locker.size}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Active Delivery Section */}
+                        {locker.status === 'occupied' && delivery && (
+                          <div className="space-y-4">
+                            <div className="border-t border-white/10 pt-4">
+                              <h3 className="text-gray-400 text-xs font-mono uppercase mb-4">Active Delivery</h3>
+                              
+                              <div className="space-y-3">
+                                {/* Resident */}
+                                <div className="glass-card rounded-lg p-4 border border-white/10">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-nexa-cyan/20 flex items-center justify-center">
+                                      <User className="w-5 h-5 text-nexa-cyan" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-xs text-gray-400 font-mono">Resident</p>
+                                      <p className="text-nexa-cyan font-mono font-semibold">{delivery.recipient}</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Unit */}
+                                <div className="glass-card rounded-lg p-4 border border-white/10">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                                      <Hash className="w-5 h-5 text-purple-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-xs text-gray-400 font-mono">Unit Number</p>
+                                      <p className="text-white font-mono font-semibold">{delivery.unit}</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Carrier */}
+                                <div className="glass-card rounded-lg p-4 border border-white/10">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                                      <Package className="w-5 h-5 text-green-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-xs text-gray-400 font-mono">Carrier</p>
+                                      <p className="text-white font-mono font-semibold">{delivery.carrier}</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Delivery Time */}
+                                <div className="glass-card rounded-lg p-4 border border-white/10">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                                      <Calendar className="w-5 h-5 text-amber-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-xs text-gray-400 font-mono">Delivered At</p>
+                                      <p className="text-white font-mono font-semibold">{delivery.timestamp}</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Days in Locker Warning */}
+                                {delivery.daysInLocker > 5 && (
+                                  <div className="glass-card rounded-lg p-4 border border-red-500/30 bg-red-500/10">
+                                    <div className="flex items-center gap-3">
+                                      <AlertCircle className="w-5 h-5 text-red-400" />
+                                      <div className="flex-1">
+                                        <p className="text-red-400 font-mono text-sm font-semibold">
+                                          {delivery.daysInLocker} days in locker
+                                        </p>
+                                        <p className="text-red-400/70 font-mono text-xs mt-1">
+                                          {delivery.daysInLocker > 7 ? 'Stale delivery - requires attention' : 'Approaching stale threshold'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Available Status Message */}
+                        {locker.status === 'available' && (
+                          <div className="border-t border-white/10 pt-4">
+                            <div className="glass-card rounded-lg p-6 text-center border border-white/10">
+                              <div className="w-16 h-16 rounded-xl bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                                <Package className="w-8 h-8 text-green-400" />
+                              </div>
+                              <p className="text-gray-400 font-mono text-sm">This locker is currently empty and ready for new deliveries.</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Issue Status Message */}
+                        {locker.status === 'issue' && (
+                          <div className="border-t border-white/10 pt-4">
+                            <div className="glass-card rounded-lg p-6 text-center border border-red-500/30 bg-red-500/10">
+                              <div className="w-16 h-16 rounded-xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+                                <AlertCircle className="w-8 h-8 text-red-400" />
+                              </div>
+                              <p className="text-red-400 font-mono text-sm font-semibold mb-2">System Issue Detected</p>
+                              <p className="text-red-400/70 font-mono text-xs">This locker requires maintenance attention.</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </>
+            )}
           </div>
         )}
 
