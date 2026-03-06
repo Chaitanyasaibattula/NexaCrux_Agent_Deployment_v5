@@ -1,6 +1,6 @@
 export type LockerSize = 'small' | 'medium' | 'large';
 export type LockerStatus = 'available' | 'occupied' | 'issue';
-export type DeliveryStatus = 'Delivered' | 'Stale';
+export type DeliveryStatus = 'Delivered' | 'Stale' | 'Picked Up';
 export type ConfirmationType = 'mobile' | 'camera' | 'signature';
 
 export interface Locker {
@@ -28,6 +28,7 @@ export interface Delivery {
   status: DeliveryStatus;
   confirmation: ConfirmationType;
   daysInLocker: number;
+  pickupTime?: string;
 }
 
 export interface AuthState {

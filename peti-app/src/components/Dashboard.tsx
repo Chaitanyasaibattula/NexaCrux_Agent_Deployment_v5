@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp } from 'lucide-react';
+import { Package, Grid3x3, HelpCircle, AlertCircle, TrendingUp, Search, PenTool } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -23,6 +23,8 @@ export default function Dashboard() {
   const { logout, deliveries, lockers, residents } = useApp();
   const [activeView, setActiveView] = useState<ViewName>('overview');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('day');
+  const [deliverySearch, setDeliverySearch] = useState('');
+  const [residentSearch, setResidentSearch] = useState('');
 
   const occupiedCount = lockers.filter(l => l.status === 'occupied').length;
   const unoccupiedCount = lockers.filter(l => l.status === 'available').length;
@@ -331,30 +333,99 @@ export default function Dashboard() {
         {/* DELIVERIES VIEW */}
         {activeView === 'deliveries' && (
           <div className="animate-fade-in">
-            <div className="mb-6">
-              <h2 className="font-space font-bold text-2xl text-white mb-2">Recent Deliveries</h2>
-              <p className="text-gray-400 text-sm font-mono">Live activity feed</p>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="font-space font-bold text-2xl text-white mb-2">Delivery Management</h2>
+                <p className="text-gray-400 text-sm font-mono">Track package lifecycle</p>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search deliveries..."
+                  value={deliverySearch}
+                  onChange={(e) => setDeliverySearch(e.target.value)}
+                  className="pl-10 pr-4 py-2 rounded-lg border border-white/20 bg-nexa-surface/30 text-white text-sm font-mono placeholder-gray-500 focus:outline-none focus:border-nexa-cyan transition-colors"
+                />
+              </div>
             </div>
             
-            <div className="glass-card rounded-xl p-6">
-              <div className="space-y-3">
-                {deliveries.slice(0, 20).map((delivery) => (
-                  <div key={delivery.id} className="flex items-center justify-between p-4 rounded-lg border border-white/5 hover:border-nexa-cyan/30 transition-all" style={{background: 'rgba(26, 26, 46, 0.3)'}}>
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${delivery.status === 'Stale' ? 'bg-red-500/20' : 'bg-nexa-cyan/20'}`}>
-                        <Package className={`w-5 h-5 ${delivery.status === 'Stale' ? 'text-red-400' : 'text-nexa-cyan'}`} />
-                      </div>
-                      <div>
-                        <p className="text-white font-mono text-sm font-semibold">{delivery.carrier}</p>
-                        <p className="text-gray-400 text-xs font-mono">Unit {delivery.unit} • Locker {delivery.lockerId}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-gray-400 text-xs font-mono">{delivery.timestamp}</p>
-                      <span className={`text-xs font-mono ${delivery.status === 'Stale' ? 'text-red-400' : 'text-green-400'}`}>{delivery.status}</span>
-                    </div>
-                  </div>
-                ))}
+            <div className="glass-card rounded-xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10" style={{background: 'rgba(26, 26, 46, 0.5)'}}>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Delivery Time</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Resident</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Unit</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Locker</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Carrier</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Status</th>
+                      <th className="text-left py-4 px-6 text-gray-400 text-xs font-mono uppercase tracking-wider">Confirmation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {deliveries
+                      .filter(d => 
+                        deliverySearch === '' || 
+                        d.recipient.toLowerCase().includes(deliverySearch.toLowerCase()) ||
+                        d.carrier.toLowerCase().includes(deliverySearch.toLowerCase()) ||
+                        d.unit.includes(deliverySearch) ||
+                        d.lockerId.toLowerCase().includes(deliverySearch.toLowerCase())
+                      )
+                      .map((delivery) => {
+                        const [time, date] = delivery.timestamp.split(', ');
+                        const pickupParts = delivery.pickupTime ? delivery.pickupTime.split(', ') : null;
+                        
+                        return (
+                          <tr key={delivery.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td className="py-4 px-6">
+                              <div className="text-white text-sm font-mono">{time || delivery.timestamp}</div>
+                              <div className="text-gray-500 text-xs font-mono mt-0.5">{date || ''}</div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="text-nexa-cyan text-sm font-mono font-medium">{delivery.recipient}</div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="text-white text-sm font-mono">{delivery.unit}</div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="text-white text-sm font-mono">{delivery.lockerId}</div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="text-gray-300 text-sm font-mono">{delivery.carrier}</div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div>
+                                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-medium ${
+                                  delivery.status === 'Picked Up' ? 'bg-green-500/20 text-green-400' :
+                                  delivery.status === 'Stale' ? 'bg-red-500/20 text-red-400' :
+                                  'bg-nexa-cyan/20 text-nexa-cyan'
+                                }`}>
+                                  {delivery.status}
+                                </span>
+                                {delivery.status === 'Picked Up' && delivery.pickupTime && (
+                                  <div className="text-gray-500 text-xs font-mono mt-1">
+                                    {pickupParts ? `${pickupParts[0]}, ${pickupParts[1]}` : delivery.pickupTime}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              {delivery.status === 'Picked Up' && delivery.confirmation === 'signature' && (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 rounded-lg bg-nexa-cyan/20 flex items-center justify-center">
+                                    <PenTool className="w-4 h-4 text-nexa-cyan" />
+                                  </div>
+                                  <span className="text-xs font-mono text-gray-400">Signed</span>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -363,9 +434,21 @@ export default function Dashboard() {
         {/* RESIDENTS VIEW */}
         {activeView === 'residents' && (
           <div className="animate-fade-in">
-            <div className="mb-6">
-              <h2 className="font-space font-bold text-2xl text-white mb-2">Residents</h2>
-              <p className="text-gray-400 text-sm font-mono">Registered property residents</p>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="font-space font-bold text-2xl text-white mb-2">Residents</h2>
+                <p className="text-gray-400 text-sm font-mono">Registered property residents</p>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search residents..."
+                  value={residentSearch}
+                  onChange={(e) => setResidentSearch(e.target.value)}
+                  className="pl-10 pr-4 py-2 rounded-lg border border-white/20 bg-nexa-surface/30 text-white text-sm font-mono placeholder-gray-500 focus:outline-none focus:border-nexa-cyan transition-colors"
+                />
+              </div>
             </div>
             
             <div className="glass-card rounded-xl p-6 overflow-x-auto">
@@ -380,7 +463,15 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {residents.map((resident, idx) => (
+                  {residents
+                    .filter(r => 
+                      residentSearch === '' ||
+                      r.name.toLowerCase().includes(residentSearch.toLowerCase()) ||
+                      r.unit.includes(residentSearch) ||
+                      r.email.toLowerCase().includes(residentSearch.toLowerCase()) ||
+                      r.phone.includes(residentSearch)
+                    )
+                    .map((resident, idx) => (
                     <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="py-3 px-4 text-white text-sm font-mono">{resident.name}</td>
                       <td className="py-3 px-4 text-gray-300 text-sm font-mono">{resident.unit}</td>

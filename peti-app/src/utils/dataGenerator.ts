@@ -65,7 +65,7 @@ export const generateInitialResidents = (): Resident[] => {
 };
 
 export const generateInitialDeliveries = (residents: Resident[], lockers: Locker[]): Delivery[] => {
-  const carriers = ['Amazon', 'Blue Dart', 'Delhivery', 'Flipkart', 'DHL'];
+  const carriers = ['Amazon', 'Blue Dart', 'Delhivery', 'Flipkart', 'DHL', 'FedEx'];
   const deliveries: Delivery[] = [];
   const occupiedLockers = lockers.filter(l => l.status === 'occupied');
   
@@ -73,10 +73,15 @@ export const generateInitialDeliveries = (residents: Resident[], lockers: Locker
     const resident = residents[Math.floor(Math.random() * residents.length)];
     const locker = occupiedLockers[i];
     const daysInLocker = Math.floor(Math.random() * 10) + 1;
+    const deliveryTime = Date.now() - Math.random() * 86400000 * 7;
     
-    deliveries.push({
+    // 30% chance of being picked up
+    const isPickedUp = Math.random() > 0.7;
+    const confirmation = ['mobile', 'camera', 'signature'][Math.floor(Math.random() * 3)] as 'mobile' | 'camera' | 'signature';
+    
+    const delivery: any = {
       id: `PKG-${8000 + i}`,
-      timestamp: new Date(Date.now() - Math.random() * 86400000 * 7).toLocaleString('en-US', { 
+      timestamp: new Date(deliveryTime).toLocaleString('en-US', { 
         month: 'short', 
         day: 'numeric', 
         hour: '2-digit', 
@@ -86,10 +91,23 @@ export const generateInitialDeliveries = (residents: Resident[], lockers: Locker
       carrier: carriers[Math.floor(Math.random() * carriers.length)],
       recipient: resident.name,
       unit: resident.unit,
-      status: daysInLocker > 7 ? 'Stale' : 'Delivered',
-      confirmation: ['mobile', 'camera', 'signature'][Math.floor(Math.random() * 3)] as 'mobile' | 'camera' | 'signature',
+      status: isPickedUp ? 'Picked Up' : (daysInLocker > 7 ? 'Stale' : 'Delivered'),
+      confirmation: isPickedUp ? 'signature' : confirmation,
       daysInLocker
-    });
+    };
+    
+    // Add pickup time if picked up
+    if (isPickedUp) {
+      const pickupTime = deliveryTime + Math.random() * 86400000 * 3; // Picked up 0-3 days after delivery
+      delivery.pickupTime = new Date(pickupTime).toLocaleString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    }
+    
+    deliveries.push(delivery);
   }
   
   return deliveries;
