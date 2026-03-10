@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Key, Palette, Smartphone, Building2, Briefcase, GraduationCap, HeartPulse, Twitter, Instagram, Linkedin, Waves, Cpu, X, Hexagon, Lock } from 'lucide-react';
+import { ShieldCheck, Key, Palette, Smartphone, Building2, Briefcase, GraduationCap, HeartPulse, Twitter, Instagram, Linkedin, Waves, Cpu, X, Hexagon, Lock, RefreshCw, Coins, Zap } from 'lucide-react';
 import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ManagerModal from './modals/ManagerModal';
@@ -86,6 +86,7 @@ export default function Landing() {
               <a href="#nexa-series" className="text-sm text-gray-400 hover:text-white transition-colors">Nexa Series</a>
               <a href="#core" className="text-sm text-gray-400 hover:text-white transition-colors">Nexa Crux Core</a>
               <a href="#sectors" className="text-sm text-gray-400 hover:text-white transition-colors">Sectors</a>
+              <a href="#exchange" className="text-sm text-gray-400 hover:text-white transition-colors">Exchange</a>
               <a href="#sustainability" className="text-sm text-gray-400 hover:text-white transition-colors">Sustainability</a>
               <button onClick={() => setActiveModal('inquire')} className="text-sm text-gray-400 hover:text-white transition-colors">Inquire</button>
             </div>
@@ -483,6 +484,81 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Nexa Legacy Exchange Section */}
+      <section id="exchange" className="relative py-24">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-nexa-cyan/5"></div>
+        <div className="relative max-w-7xl mx-auto px-6">
+          {/* Exclusive Badge */}
+          <div className="absolute top-8 right-8">
+            <div className="px-4 py-2 rounded-full border border-nexa-cyan bg-nexa-cyan/10 backdrop-blur-md">
+              <span className="text-xs font-mono font-semibold text-nexa-cyan uppercase tracking-wider animate-pulse">Exclusive Upgrade Program</span>
+            </div>
+          </div>
+
+          {/* Header */}
+          <div className="text-center mb-16">
+            <p className="font-mono text-sm text-nexa-cyan mb-4 uppercase tracking-widest">The Nexa Legacy Exchange</p>
+            <h2 className="font-space font-bold text-4xl md:text-5xl tracking-[-0.02em] mb-6">Modernize Your <span className="gradient-text">Infrastructure</span></h2>
+            <p className="text-gray-400 text-lg max-w-3xl mx-auto">Upgrade from manual lockers to Nexa Crux. We buy back your existing hardware and credit the value directly toward your new intelligent system.</p>
+          </div>
+
+          {/* 3-Step Process Flow */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {/* Step 1: Assessment */}
+            <div className="glass-card rounded-2xl p-8 border border-nexa-cyan/20 hover:border-nexa-cyan/40 transition-all">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center mb-6 mx-auto">
+                <RefreshCw className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-center">
+                <h3 className="font-space font-bold text-xl text-white mb-3">Step 1: Assessment</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">We evaluate your current manual locker setup, measuring dimensions, capacity, and condition to determine accurate valuation.</p>
+              </div>
+            </div>
+
+            {/* Step 2: Valuation */}
+            <div className="glass-card rounded-2xl p-8 border border-nexa-cyan/20 hover:border-nexa-cyan/40 transition-all">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center mb-6 mx-auto">
+                <Coins className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-center">
+                <h3 className="font-space font-bold text-xl text-white mb-3">Step 2: Valuation</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">Receive a guaranteed buyback credit based on your existing hardware. No hidden fees, no depreciation surprises.</p>
+              </div>
+            </div>
+
+            {/* Step 3: Deployment */}
+            <div className="glass-card rounded-2xl p-8 border border-nexa-cyan/20 hover:border-nexa-cyan/40 transition-all">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center mb-6 mx-auto">
+                <Zap className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-center">
+                <h3 className="font-space font-bold text-xl text-white mb-3">Step 3: Deployment</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">We remove the old units and install Nexa Crux, deducting the credit from your final balance. Zero downtime guaranteed.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <div className="text-center">
+            <button
+              onClick={() => {
+                setActiveModal('inquire');
+                setTimeout(() => {
+                  const inquireSection = document.getElementById('inquire-modal');
+                  if (inquireSection) {
+                    inquireSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-nexa-indigo to-nexa-cyan text-white font-space font-bold text-lg hover:scale-105 transition-transform shadow-lg hover:shadow-nexa-cyan/50"
+            >
+              <Coins className="w-5 h-5" />
+              Calculate My Upgrade Credit
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Sustainability Section */}
       <section id="sustainability" className="relative py-24">
         <div className="absolute inset-0 bg-gradient-to-b from-nexa-charcoal via-nexa-black to-nexa-charcoal"></div>
@@ -549,6 +625,7 @@ export default function Landing() {
                 <li><a href="#capabilities" className="text-sm text-gray-500 hover:text-white transition-colors">Capabilities</a></li>
                 <li><a href="#core" className="text-sm text-gray-500 hover:text-white transition-colors">Nexa Crux Core</a></li>
                 <li><a href="#sectors" className="text-sm text-gray-500 hover:text-white transition-colors">Sectors</a></li>
+                <li><a href="#exchange" className="text-sm text-gray-500 hover:text-white transition-colors">Exchange</a></li>
                 <li><a href="#sustainability" className="text-sm text-gray-500 hover:text-white transition-colors">Sustainability</a></li>
                 <li><button onClick={() => setActiveModal('inquire')} className="text-sm text-gray-500 hover:text-white transition-colors">Inquire</button></li>
               </ul>
