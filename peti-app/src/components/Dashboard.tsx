@@ -106,7 +106,7 @@ export default function Dashboard() {
       <header className="fixed top-0 left-0 right-0 h-20 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between px-6 z-50" style={{background: 'rgba(0, 0, 0, 0.6)'}}>
         {/* Left: Logo */}
         <div className="flex items-center gap-3">
-          <img src={`${import.meta.env.BASE_URL}assets/nexa-crux-logo.png`} alt="Nexa Crux" className="h-16" />
+          <img src={`${import.meta.env.BASE_URL}assets/nexa-crux-logo.png?v=${Date.now()}`} alt="Nexa Crux" className="h-16" />
           <div>
             <h1 className="font-space font-bold text-white text-base">Command Center</h1>
           </div>

@@ -78,7 +78,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src={`${baseUrl}assets/nexa-crux-logo.png`} alt="Nexa Crux" className="h-20" />
+              <img src={`${baseUrl}assets/nexa-crux-logo.png?v=${Date.now()}`} alt="Nexa Crux" className="h-20" />
             </div>
             
             <div className="hidden md:flex items-center gap-8">
@@ -231,7 +231,7 @@ export default function Landing() {
           <div className="mb-16 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-nexa-indigo/10 to-nexa-cyan/10 rounded-3xl blur-3xl"></div>
             <div className="relative rounded-2xl overflow-hidden border border-white/10">
-              <img src={`${baseUrl}assets/peti-hardware-100.png`} alt="Nexa Crux Intelligent Locker System - 100 Units" className="w-full h-auto object-cover" />
+              <img src={`${baseUrl}assets/peti-hardware-100.png?v=${Date.now()}`} alt="Nexa Crux Intelligent Locker System - 100 Units" className="w-full h-auto object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-nexa-black/60 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
