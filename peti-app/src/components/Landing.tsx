@@ -78,7 +78,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src={`${baseUrl}assets/nexa-crux-logo.png?v=${Date.now()}`} alt="Nexa Crux" className="h-20" />
+              <img src={`${baseUrl}assets/nexa-crux-logo.png?v=${Date.now()}`} alt="Nexa Crux" className="h-28" />
             </div>
             
             <div className="hidden md:flex items-center gap-8">
