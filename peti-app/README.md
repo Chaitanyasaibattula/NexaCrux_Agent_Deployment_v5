@@ -1,6 +1,8 @@
-# PETI — The New Architecture of Delivery
+# Nexa Crux — The New Architecture of Delivery
 
 A professional, scalable React + Vite + TypeScript application for managing smart locker systems in premium properties.
+
+<!-- Deployment: 2026-03-12 06:50 -->
 
 ## 🎯 Features Implemented
 
