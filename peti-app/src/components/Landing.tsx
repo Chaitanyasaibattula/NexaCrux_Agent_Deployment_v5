@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Key, Palette, Smartphone, Building2, Briefcase, GraduationCap, HeartPulse, Twitter, Instagram, Linkedin, Waves, Cpu, X, Hexagon, Lock, RefreshCw, Coins, Zap } from 'lucide-react';
+import { ShieldCheck, Key, Palette, Smartphone, Building2, Briefcase, GraduationCap, HeartPulse, Twitter, Instagram, Linkedin, Waves, Cpu, Hexagon, RefreshCw, Coins, Zap, Box } from 'lucide-react';
 import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ManagerModal from './modals/ManagerModal';
@@ -75,13 +75,13 @@ export default function Landing() {
     <div className="min-h-screen bg-nexa-black">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-nav">
-        <div className="max-w-7xl mx-auto px-4 py-5">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center gap-12">
             <div className="flex items-center">
-              <img src={`${baseUrl}assets/nexa-crux-logo.png?v=${Date.now()}`} alt="Nexa Crux" className="h-28" />
+              <img src={`${baseUrl}assets/nexa-crux-logo.png?v=${Date.now()}`} alt="Nexa Crux" className="h-16" />
             </div>
             
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-8 flex-1">
               <a href="#capabilities" className="text-sm text-gray-400 hover:text-white transition-colors">Capabilities</a>
               <a href="#nexa-series" className="text-sm text-gray-400 hover:text-white transition-colors">Nexa Series</a>
               <a href="#core" className="text-sm text-gray-400 hover:text-white transition-colors">Nexa Crux Core</a>
@@ -286,68 +286,69 @@ export default function Landing() {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Nexa Hub Card */}
+            {/* Nexa RAW Card */}
             <motion.div
               whileHover={{ rotateY: 5, rotateX: -5, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="glass-card-strong rounded-2xl p-8 border border-white/10 backdrop-blur-md"
               style={{ transformStyle: "preserve-3d" }}
             >
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center mb-6">
-                <Building2 className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center mb-6">
+                <Box className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-space font-bold text-2xl mb-3">Nexa Hub</h3>
+              <h3 className="font-space font-bold text-2xl mb-3">Nexa RAW</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                The gold standard for residential and corporate package management.
+                The foundational model. High-durability, regular smart lockers for standard parcel delivery.
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-full bg-nexa-indigo/20 text-nexa-cyan text-xs font-mono">Residential</span>
-                <span className="px-3 py-1 rounded-full bg-nexa-indigo/20 text-nexa-cyan text-xs font-mono">Corporate</span>
+                <span className="px-3 py-1 rounded-full bg-gray-700/20 text-gray-300 text-xs font-mono">Standard Delivery</span>
+                <span className="px-3 py-1 rounded-full bg-gray-700/20 text-gray-300 text-xs font-mono">High-Durability</span>
               </div>
             </motion.div>
 
-            {/* Nexa Hive Card - Hexagonal */}
+            {/* Nexa HUB Card */}
             <motion.div
               whileHover={{ rotateY: 5, rotateX: -5, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="glass-card-strong rounded-2xl p-8 border border-white/10 backdrop-blur-md relative overflow-hidden"
-              style={{ transformStyle: "preserve-3d", clipPath: "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)" }}
+              className="glass-card-strong rounded-2xl p-8 border border-nexa-cyan/30 backdrop-blur-md relative overflow-hidden"
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-nexa-cyan/5 to-nexa-indigo/5"></div>
+              <div className="relative">
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center mb-6">
+                  <Building2 className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-space font-bold text-2xl mb-3">Nexa HUB</h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                  The premium experience. Features integrated ambient LED lighting around locker frames with a refined, sleek exterior design.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 rounded-full bg-nexa-indigo/20 text-nexa-cyan text-xs font-mono">LED Lighting</span>
+                  <span className="px-3 py-1 rounded-full bg-nexa-indigo/20 text-nexa-cyan text-xs font-mono">Premium</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Nexa HIVE Card - Hexagonal Luxury */}
+            <motion.div
+              whileHover={{ rotateY: 5, rotateX: -5, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="glass-card-strong rounded-2xl p-8 border border-amber-500/30 backdrop-blur-md relative overflow-hidden"
+              style={{ transformStyle: "preserve-3d" }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-500/10"></div>
               <div className="relative">
                 <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-6">
                   <Hexagon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-space font-bold text-2xl mb-3">Nexa Hive</h3>
+                <h3 className="font-space font-bold text-2xl mb-3">Nexa HIVE</h3>
                 <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                  A revolutionary hexagonal glass-display locker designed for luxury retail and high-end boutiques.
+                  The luxury display model. Hexagonal shape with integrated glass/transparent display panels for high-end retail—jewelry, watches, gold.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-mono">Luxury Retail</span>
-                  <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-mono">Boutiques</span>
+                  <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-mono">Glass Display</span>
                 </div>
-              </div>
-            </motion.div>
-
-            {/* Nexa Stealth Card - Coming Soon */}
-            <motion.div
-              whileHover={{ rotateY: 5, rotateX: -5, scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="glass-card-strong rounded-2xl p-8 border border-white/10 backdrop-blur-md relative overflow-hidden bg-gradient-to-br from-nexa-black to-nexa-charcoal"
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <div className="absolute top-4 right-4">
-                <span className="px-3 py-1 rounded-full bg-nexa-electric/20 text-nexa-electric text-xs font-mono border border-nexa-electric/30">Coming Soon</span>
-              </div>
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-800 to-black flex items-center justify-center mb-6 border border-white/20">
-                <Lock className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="font-space font-bold text-2xl mb-3">Nexa [Stealth]</h3>
-              <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                Redefining the future of secure logistics.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-full bg-white/5 text-gray-500 text-xs font-mono">Classified</span>
               </div>
             </motion.div>
           </div>
@@ -596,15 +597,12 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="relative py-16 border-t border-white/5">
+      <footer className="relative py-16 border-t border-white/5" style={{background: '#000000'}}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-nexa-indigo to-nexa-cyan flex items-center justify-center">
-                  <X className="w-6 h-6 text-white" strokeWidth={2.5} />
-                </div>
-                <span className="font-space font-semibold text-xl">Nexa Crux</span>
+                <img src={`${baseUrl}assets/nexa-crux-logo.png?v=${Date.now()}`} alt="Nexa Crux" className="h-10" />
               </div>
               <p className="text-gray-500 text-sm max-w-sm mb-6">The new architecture of delivery. Intelligent, secure, and seamlessly integrated into your property's infrastructure.</p>
               <div className="flex items-center gap-4">
